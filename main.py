@@ -9,10 +9,10 @@ generate=0
 obstacles=[]
 #########################################################################
 def init_my_scene(Width, Height):
-    glClearColor(0, 0, 0, 1) # set the background to blue-grey
+    glClearColor(0.2,0.2, 0.3, 1) # set the background to blue-grey
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    gluPerspective(50, float(Width) / float(Height), 1.0, 100.0)
+    gluPerspective(30, float(Width) / float(Height), 1.0, 100.0)
     glMatrixMode(GL_MODELVIEW)
 #########################################################################
 def draw_ground(Z):
@@ -29,9 +29,9 @@ def Draw_vehicle():
 #########################################################################
 def init_obstacle(X,Z):
     
-    choice=randrange(3)
+    Shape=randrange(3)
     X_axis=randrange(3)
-    obstacles.append([X,Z+40,choice])
+    obstacles.append([X_axis,Z+40,Shape])
 #########################################################################
 def draw_old_obstacles():
     global obstacles
@@ -39,10 +39,11 @@ def draw_old_obstacles():
     glPushMatrix()
     for obstacle in obstacles:
         
-        glTranslate(obstacle[0],0,obstacle[1])
+        glTranslate(0,0,obstacle[1])
         
         if(obstacle[2]==0):
             glPushMatrix()
+            glTranslate((obstacle[0]-1)*5,0,0)
             glColor3d(1,1,0)
             
             glScale(1.1,1.5,1)
@@ -52,6 +53,7 @@ def draw_old_obstacles():
             
         elif(obstacle[2]==1):
             glPushMatrix()
+            glTranslate((obstacle[0]-1)*5,0,0)
             glColor3d(1,0,1)
             
             glScale(0.75,1,0.8)
@@ -61,6 +63,7 @@ def draw_old_obstacles():
             
         else:
             glPushMatrix()
+            glTranslate((obstacle[0]-1)*5,0,0)
             glColor3d(0,1,0)
             
             glRotate(-90,1,0,0)
@@ -79,7 +82,7 @@ def Game():
     glEnable(GL_DEPTH_TEST)
     glLoadIdentity()
     #         center   Look at   Up
-    gluLookAt(X,8,Z-9,  0,3,Z,  0,1,0)
+    gluLookAt(X,25,Z-25,  0,5,Z+5,  0,1,0)
     
     # draw ground
     draw_ground(Z)
