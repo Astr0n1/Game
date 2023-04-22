@@ -2,6 +2,7 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from numpy import *
+from queue import *
 ##########################################################################
 Width=1200
 Height=1000
@@ -13,10 +14,9 @@ def init_my_scene(Width, Height):
     gluPerspective(50, float(Width) / float(Height), 1.0, 100.0)
     glMatrixMode(GL_MODELVIEW)
 ##########################################################################
-
-
-
-
+def draw():
+    glClear(GL_COLOR_BUFFER_BIT)
+    glLoadIdentity()
 ##########################################################################
 # main
 glutInit()
