@@ -4,7 +4,8 @@ from OpenGL.GLU import *
 from numpy import *
 from random import randrange
 #########################################################################
-X,Z=0,0
+X=0
+speed=0
 obstacle_X=[]
 obstacle_Z=[]
 generate=0
@@ -17,18 +18,19 @@ def init_my_scene(Width, Height):
     glMatrixMode(GL_MODELVIEW)
 #########################################################################
 def Draw_vehicle():
-    global X,Z
+    global X,speed
     glColor3d(1,0,1)
     glPushMatrix()
-    glTranslate(X,0,Z)
-    glRotate(Z*3,1,0,0)
+    glTranslate(X,0,0)
+    glRotate(speed,1,0,0)
     glutWireSphere(1.8,20,20)
     glPopMatrix()
+    speed+=3
 #########################################################################
-def generate_obstacle(Z):
+def generate_obstacle():
     rail=randrange(3)  # rail={0,1,2}
     obstacle_X.append((rail-1)*4.5) # X = {-5,0,5}
-    obstacle_Z.append(Z+100)
+    obstacle_Z.append(100)
 #########################################################################
 def draw_old_obstacles():
     global obstacle_X,obstacle_Z
@@ -40,6 +42,7 @@ def draw_old_obstacles():
         
         glScale(1.5,2,1.5)
         glTranslate(obstacle_X[i],0,obstacle_Z[i])
+        obstacle_Z[i]-=1
         glutSolidCube(4)
         
         glPopMatrix()
@@ -49,17 +52,19 @@ def draw_old_obstacles():
 #########################################################################
 def Game():
     
-    global Z,generate   # variables
+    global generate   # variables
     
     # initializing
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT )  
     glEnable(GL_DEPTH_TEST)
     glLoadIdentity()
     #          center     Look at   Up
-    gluLookAt(0,20,Z-20,  0,10,Z,  0,1,0)
+    gluLookAt(0,20,-20,  0,10,0,  0,1,0)
     
     if(generate%50==0):
-        generate_obstacle(Z)
+        generate_obstacle()
+        
+    
     
     draw_old_obstacles()
     
@@ -67,7 +72,6 @@ def Game():
     
     Draw_vehicle()
     
-    Z+=1
     generate+=1
     
     glutSwapBuffers()
@@ -82,10 +86,15 @@ def keyboard_callback(key, x, y):
 #########################################################################
 def crash_detector():
     global X,Z,obstacle_X,obstacle_Z
-    # for i in range (len(obstacle_X)):
-    #     if(Z==obstacle_Z[i]):
-    #         if(X==0 and obstacle_X[i]==0):
-    #             exit()
+    if (obstacle_Z[0]==0):
+        if(obstacle_X[0]==0 and X==0):
+            print ('$'*1000)
+            
+        obstacle_Z.pop(0)
+        obstacle_X.pop(0)
+        
+    
+    
 
 def main():
     glutInit(sys.argv)
