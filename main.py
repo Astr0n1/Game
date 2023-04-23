@@ -6,6 +6,7 @@ from random import randrange
 #########################################################################
 X=0
 speed=0
+lose=False
 obstacle_X=[]
 obstacle_Z=[]
 generate=0
@@ -61,18 +62,20 @@ def Game():
     #          center     Look at   Up
     gluLookAt(0,20,-20,  0,10,0,  0,1,0)
     
-    if(generate%50==0):
-        generate_obstacle()
+    if lose:
+        Game_over
+    else:
+    
+        if(generate%50==0):
+            generate_obstacle()
         
-    
-    
-    draw_old_obstacles()
-    
-    crash_detector()
-    
-    Draw_vehicle()
-    
-    generate+=1
+        draw_old_obstacles()
+        
+        crash_detector()
+        
+        Draw_vehicle()
+        
+        generate+=1
     
     glutSwapBuffers()
 
@@ -85,15 +88,18 @@ def keyboard_callback(key, x, y):
         X-=6
 #########################################################################
 def crash_detector():
-    global X,Z,obstacle_X,obstacle_Z
+    global X,Z,obstacle_X,obstacle_Z,lose
     if (obstacle_Z[0]==0):
-        if(obstacle_X[0]==0 and X==0):
+        if((obstacle_X[0]==0 and X==0) or obstacle_X[0]*X>0):
+            lose=True
             print ('$'*1000)
             
         obstacle_Z.pop(0)
         obstacle_X.pop(0)
         
-    
+#########################################################################
+def Game_over():
+    global X
     
 
 def main():
