@@ -6,7 +6,7 @@ from random import randrange
 #########################################################################
 X=0
 speed=0
-lose=False
+life=3
 obstacle_X=[]
 obstacle_Z=[]
 generate=0
@@ -62,7 +62,7 @@ def Game():
     #          center     Look at   Up
     gluLookAt(0,20,-20,  0,10,0,  0,1,0)
     
-    if lose:
+    if not life:
         Game_over
     else:
     
@@ -88,11 +88,11 @@ def keyboard_callback(key, x, y):
         X-=6
 #########################################################################
 def crash_detector():
-    global X,Z,obstacle_X,obstacle_Z,lose
+    global X,obstacle_X,obstacle_Z,life
     if (obstacle_Z[0]==0):
         if((obstacle_X[0]==0 and X==0) or obstacle_X[0]*X>0):
-            lose=True
-            print ('$'*1000)
+            life-=1
+            print ('crash '*1000)
             
         obstacle_Z.pop(0)
         obstacle_X.pop(0)
