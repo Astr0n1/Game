@@ -5,108 +5,88 @@ from numpy import *
 from random import randrange
 #########################################################################
 X,Z=0,0
+obstacle_X=[]
+obstacle_Z=[]
 generate=0
-obstacles=[]
 #########################################################################
 def init_my_scene(Width, Height):
-    glClearColor(0.2,0.2, 0.3, 1) # set the background to blue-grey
+    glClearColor(0.2, 0.2, 0.3, 1) # set the background to blue-grey
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    gluPerspective(30, float(Width) / float(Height), 1.0, 100.0)
+    gluPerspective(45, float(Width) / float(Height), 20, 200.0)
     glMatrixMode(GL_MODELVIEW)
 #########################################################################
-def draw_ground(Z):
+def Draw_vehicle():
+    global X,Z
+    glColor3d(1,0,1)
     glPushMatrix()
-    glColor3d(1,1,1,1)
-    glScale(3,0.5,40)
-    glTranslate(0,0,Z+10)
-    glutSolidCube(1)
+    glTranslate(X,0,Z)
+    glRotate(Z*3,1,0,0)
+    glutWireSphere(1.8,20,20)
     glPopMatrix()
 #########################################################################
-def Draw_vehicle():
-    glColor3d(1,1,1)
-    glutWireTeapot(1)
-#########################################################################
-def init_obstacle(X,Z):
-    
-    Shape=randrange(3)
-    X_axis=randrange(3)
-    obstacles.append([X_axis,Z+40,Shape])
+def generate_obstacle(Z):
+    rail=randrange(3)  # rail={0,1,2}
+    obstacle_X.append((rail-1)*4.5) # X = {-5,0,5}
+    obstacle_Z.append(Z+100)
 #########################################################################
 def draw_old_obstacles():
-    global obstacles
+    global obstacle_X,obstacle_Z
     
     glPushMatrix()
-    for obstacle in obstacles:
+    for i in range (len(obstacle_X)):
+        glPushMatrix()
+        glColor3d(1,1,0)
         
-        glTranslate(0,0,obstacle[1])
+        glScale(1.5,2,1.5)
+        glTranslate(obstacle_X[i],0,obstacle_Z[i])
+        glutSolidCube(4)
         
-        if(obstacle[2]==0):
-            glPushMatrix()
-            glTranslate((obstacle[0]-1)*5,0,0)
-            glColor3d(1,1,0)
-            
-            glScale(1.1,1.5,1)
-            glutSolidCube(4)
-            
-            glPopMatrix()
-            
-        elif(obstacle[2]==1):
-            glPushMatrix()
-            glTranslate((obstacle[0]-1)*5,0,0)
-            glColor3d(1,0,1)
-            
-            glScale(0.75,1,0.8)
-            glutSolidSphere(3,100,100)
-            
-            glPopMatrix()
-            
-        else:
-            glPushMatrix()
-            glTranslate((obstacle[0]-1)*5,0,0)
-            glColor3d(0,1,0)
-            
-            glRotate(-90,1,0,0)
-            glutSolidCone(1.85,5,20,20)
-            
-            glPopMatrix()
-            
+        glPopMatrix()
+        # glTranslate(-obstacle_X[i],0,-obstacle_Z[i])
+        
     glPopMatrix()
 #########################################################################
 def Game():
     
-    global X,Z,obstacles,generate   # variables
+    global Z,generate   # variables
     
     # initializing
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT )  
     glEnable(GL_DEPTH_TEST)
     glLoadIdentity()
-    #         center   Look at   Up
-    gluLookAt(X,25,Z-25,  0,5,Z+5,  0,1,0)
+    #          center     Look at   Up
+    gluLookAt(0,20,Z-20,  0,10,Z,  0,1,0)
     
-    # draw ground
-    draw_ground(Z)
+    if(generate%50==0):
+        generate_obstacle(Z)
     
-    # generating obstacles
-    if(generate%7==0):
-        init_obstacle(X,Z)
-    
-    # all obstacles
     draw_old_obstacles()
     
-    # vehicle
-    glPushMatrix()
-    glTranslate(X,0,Z) 
+    crash_detector()
+    
     Draw_vehicle()
-    glPopMatrix()
     
-    
-    Z+=0.4
+    Z+=1
     generate+=1
     
     glutSwapBuffers()
 
 #########################################################################
+def keyboard_callback(key, x, y):
+    global X,Z
+    if key == GLUT_KEY_LEFT and X<6:
+        X+=6
+    elif key == GLUT_KEY_RIGHT and X>-6:
+        X-=6
+#########################################################################
+def crash_detector():
+    global X,Z,obstacle_X,obstacle_Z
+    # for i in range (len(obstacle_X)):
+    #     if(Z==obstacle_Z[i]):
+    #         if(X==0 and obstacle_X[i]==0):
+    #             exit()
+
 def main():
     glutInit(sys.argv)
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
@@ -115,6 +95,7 @@ def main():
     window = glutCreateWindow(b"Race The Sun !")
     glutDisplayFunc(Game)
     glutIdleFunc(Game)
+    glutSpecialFunc(keyboard_callback)
     init_my_scene(1000, 900)
     glutMainLoop()
 
