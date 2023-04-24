@@ -2,6 +2,8 @@ from OpenGL.GL import *
 from OpenGL.GLUT import*
 from OpenGL.GLU import *
 from numpy import *
+from constants import *
+import pygame
 from random import randrange
 #########################################################################
 X=0
@@ -14,6 +16,50 @@ OBSTACLE_Z=[]
 PHASE=[]
 COUNTER=0
 GENERATE=0
+TEXTURE_NAMES = [0]
+#########################################################################
+def projection_ortho():
+    glLoadIdentity()
+    glMatrixMode(GL_PROJECTION)
+    glLoadIdentity()
+    glOrtho(-1, 1, -1, 1, -100, 1)
+    glMatrixMode(GL_MODELVIEW)
+    glLoadIdentity()
+#########################################################################
+def init_textures():
+    loadTextures()
+
+#########################################################################
+def texture_setup(texture_image_binary, texture_name, width, height):
+    glBindTexture(GL_TEXTURE_2D, texture_name)
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+                    GL_REPEAT)
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+
+    glTexImage2D(GL_TEXTURE_2D,
+                 0,
+                 3,
+                 width, height,
+                 0,
+                 GL_RGBA,
+                 GL_UNSIGNED_BYTE,
+                 texture_image_binary)
+#########################################################################
+def loadTextures():
+    glEnable(GL_TEXTURE_2D)
+    images = [pygame.image.load("background.jpg")]
+    textures = [pygame.image.tostring(image, "RGBA", True)
+                for image in images]
+
+    glGenTextures(len(images), TEXTURE_NAMES)
+
+    for i in range(len(images)):
+        texture_setup(textures[i],
+                      TEXTURE_NAMES[i],
+                      images[i].get_width(),
+                      images[i].get_height())
 #########################################################################
 def init_my_scene(Width, Height):
     glClearColor(0, 0, 0, 1) # set the background to blue-grey
@@ -22,14 +68,45 @@ def init_my_scene(Width, Height):
     gluPerspective(45, float(Width) / float(Height), 20, 200.0)
     glMatrixMode(GL_MODELVIEW)
 #########################################################################
+def background_draw():
+    glBegin(GL_QUADS)
+    glTexCoord2f(0, 1)
+    glVertex(-1, 1)
+
+    glTexCoord2f(0, 0)
+    glVertex(-1, -1)
+
+    glTexCoord2f(1, 0)
+    glVertex(1, -1)
+
+    glTexCoord2f(1, 1)
+    glVertex(1, 1)
+    glEnd()
+#########################################################################
+def draw_screen():
+    glPushMatrix()
+    glColor(1, 1, 1)
+    projection_ortho()
+    glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[0])
+    background_draw()
+    glBindTexture(GL_TEXTURE_2D, -1)
+    init_my_scene(1000, 900)
+    glPopMatrix()
+#########################################################################
 def Draw_vehicle():
     global X,BALL_ROTATE
     X
     glColor3d(0,0.8,1)
     glPushMatrix()
     glTranslate(X,0,abs(X/4))
-    glRotate(BALL_ROTATE,1,0,0)
-    glutWireSphere(2,20,20)
+    glScale(.8, .8, .8)
+    # glRotate(BALL_ROTATE,1,0,0)
+    glBegin(GL_LINES)
+    for edge in spaceship_edges_vector2:
+        for vertex in edge:
+            glVertex3fv(spaceship_verticies_vector3[vertex])
+    glEnd()
+    # glutWireSphere(2,20,20)
     glPopMatrix()
     BALL_ROTATE+=3
 #########################################################################
@@ -94,12 +171,12 @@ def Game():
     
         if(GENERATE%180==0):
             generate_obstacle()
-        
+        draw_screen()
         
         draw_old_obstacles()
         
         crash_detector()
-        
+
         Draw_vehicle()
         
         
@@ -154,9 +231,10 @@ def main():
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
     glutInitWindowSize(1000, 900)
     glutInitWindowPosition(400,0)
-    window = glutCreateWindow(b"Race The Sun !")
+    glutCreateWindow(b"Race The Sun !")
     glutDisplayFunc(Game)
     glutIdleFunc(Game)
+    init_textures()
     # glutSpecialFunc(keyboard_callback)
     glutPassiveMotionFunc(mouse_callback)
     init_my_scene(1000, 900)
