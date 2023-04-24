@@ -11,7 +11,7 @@ LIFE=3
 OBSTACLE_X=[]
 OBSTACLE_Z=[]
 COUNTER=0
-GENERATE=250
+GENERATE=0
 #########################################################################
 def init_my_scene(Width, Height):
     glClearColor(0.2, 0.2, 0.3, 1) # set the background to blue-grey
@@ -73,7 +73,7 @@ def Game():
         Game_over
     else:
     
-        if(GENERATE%50==0):
+        if(GENERATE%180==0):
             generate_obstacle()
         
         
@@ -83,7 +83,13 @@ def Game():
         
         Draw_vehicle()
         
-        GENERATE+=1
+        if(SPEED <1.5):
+            STEP=3
+        elif(SPEED<1.7):
+            STEP=4
+        else:
+            STEP=5
+        GENERATE+=STEP
     
     glutSwapBuffers()
 
@@ -97,13 +103,13 @@ def keyboard_callback(key, x, y):
 #########################################################################
 def crash_detector():
     global X,OBSTACLE_X,OBSTACLE_Z,LIFE,SPEED
-    if (OBSTACLE_Z[0]<5 and X==OBSTACLE_X[0] and OBSTACLE_Z[0]>4.9-SPEED):
+    if (len(OBSTACLE_X) and OBSTACLE_Z[0]<5 and X==OBSTACLE_X[0] and OBSTACLE_Z[0]>4.9-SPEED):
         
             LIFE-=1
             print ('crash '*15)
     
     
-    if(OBSTACLE_Z[0]<=-10):
+    if(len(OBSTACLE_X) and OBSTACLE_Z[0]<=-10  ):
         OBSTACLE_Z.pop(0)
         OBSTACLE_X.pop(0)
         
