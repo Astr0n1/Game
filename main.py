@@ -9,6 +9,9 @@ from random import randrange
 X=0
 SPEED=2
 LIFE=1
+state="3"
+camera_coords={'x_c' : 0 , 'y_c' : 25 , 'z_c' : -25 ,
+               'x_l' : 0 , 'y_l' : 11 , 'z_l' :  0 } 
 FONT_DOWNSCALE = 0.13
 OBSTACLE_X=[]
 OBSTACLE_Z=[]
@@ -22,7 +25,7 @@ def projection_ortho():
     glLoadIdentity()
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    glOrtho(-1, 1, -1, 1, -100, 1)
+    glOrtho(-1, 1, -1, 1, -200, 1)
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
 #########################################################################
@@ -65,7 +68,7 @@ def init_my_scene(Width, Height):
     glClearColor(0, 0, 0, 1) # set the background to blue-grey
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    gluPerspective(45, float(Width) / float(Height), 20, 200.0)
+    gluPerspective(45, float(Width) / float(Height), 20, 300.0)
     glMatrixMode(GL_MODELVIEW)
 #########################################################################
 def background_draw():
@@ -114,10 +117,14 @@ def generate_obstacle():
         SPEED+=0.3
         COUNTER=0
         print(SPEED)
-    rail=randrange(3)  # rail={0,1,2}
+    if (state=='3'):
+        rail=randrange(3)  # rail={0,1,2}
+        OBSTACLE_X.append((rail-1)*8)
+    else :
+        rail=randrange(5)
+        OBSTACLE_X.append((rail-2)*8)
     PHASE.append(randrange(360))
-    OBSTACLE_X.append((rail-1)*8) # X = {-8,0,8}
-    OBSTACLE_Z.append(100)
+    OBSTACLE_Z.append(200)
 #########################################################################
 def draw_old_obstacles():
     global OBSTACLE_X, OBSTACLE_Z, SPEED
@@ -151,14 +158,26 @@ def draw_text(string, x, y):
 #########################################################################
 def Game():
     
-    global GENERATE,SPEED   # variables
+    global GENERATE,SPEED,state,camera_coords   # variables
     
     # initializing
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT )  
     glEnable(GL_DEPTH_TEST)
     glLoadIdentity()
-    #          center     Look at   Up
-    gluLookAt(0,25,-25,  0,10,0,  0,1,0)
+    
+    if ( state == "5"):
+        print("check"*10)
+        
+        if (camera_coords['y_c']<50):
+            camera_coords['y_c']+=0.5
+            camera_coords['z_c']-=0.5
+            camera_coords['y_l']-=3/50
+            camera_coords['z_l']+=0.7
+            
+    
+    gluLookAt(camera_coords['x_c'],camera_coords['y_c'],camera_coords['z_c'],
+              camera_coords['x_l'],camera_coords['y_l'],camera_coords['z_l'],
+              0,1,0)
     
     if not LIFE:
         Game_over()
@@ -176,12 +195,14 @@ def Game():
         
         crash_detector()
         
-        if(SPEED <1.5):
+        if(SPEED <2.3):
             STEP=3
-        elif(SPEED<1.7):
+        elif(SPEED<2.5):
             STEP=4
+            state="5"
         else:
             STEP=5
+            
         GENERATE+=STEP
     
     glutSwapBuffers()
@@ -195,15 +216,20 @@ def keyboard_callback(key, x, y):
         X-=1
 
 def mouse_callback(x, y):
-    global X
+    global X,state
     X = (-x+500)/30
-    if (X>8):
+    if (X>8 and state=='3'):
         X=8
-    elif(X<-8):
+    elif(X<-8 and state=='3'):
         X=-8
+    
+    if (X>16 and state=='5'):
+        X=16
+    elif(X<-16 and state=='5'):
+        X=-16
 #########################################################################
 def crash_detector():
-    global X,OBSTACLE_X,OBSTACLE_Z,LIFE,SPEED,PHASE
+    global X,OBSTACLE_X,OBSTACLE_Z,LIFE,PHASE
     if (OBSTACLE_Z[0]<5 and  OBSTACLE_Z[0]>4-SPEED and abs(X-OBSTACLE_X[0])<=6):
         
         LIFE-=1
