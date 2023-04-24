@@ -7,8 +7,7 @@ import pygame
 from random import randrange
 #########################################################################
 X=0
-SPEED=1
-BALL_ROTATE=0
+SPEED=2
 LIFE=1
 FONT_DOWNSCALE = 0.13
 OBSTACLE_X=[]
@@ -17,7 +16,7 @@ PHASE=[]
 COUNTER=0
 GENERATE=0
 TEXTURE_NAMES = [0]
-MILLISECONDS = 20
+MILLISECONDS = 1
 #########################################################################
 def projection_ortho():
     glLoadIdentity()
@@ -95,28 +94,24 @@ def draw_screen():
     glPopMatrix()
 #########################################################################
 def Draw_vehicle():
-    global X,BALL_ROTATE
-    X
-    glColor3d(0,0.8,1)
+    global X
+    glColor3d(0,0.5,1)
     glPushMatrix()
-    glTranslate(X,0,abs(X/4))
-    glScale(.8, .8, .8)
-    # glRotate(BALL_ROTATE,1,0,0)
-    # glLineWidth(4)
+    glTranslate(X,0,abs(X/6))
+    glRotate(3*X,0,0,1)
+    glScale(.6, .6, .7)
     glBegin(GL_LINES)
     for edge in spaceship_edges_vector2:
         for vertex in edge:
             glVertex3fv(spaceship_verticies_vector3[vertex])
     glEnd()
-    # glutWireSphere(2,20,20)
     glPopMatrix()
-    BALL_ROTATE+=3
 #########################################################################
 def generate_obstacle():
     global OBSTACLE_X,OBSTACLE_Z,PHASE,COUNTER,SPEED
     COUNTER+=1
-    if(COUNTER==10 and SPEED<=2):
-        SPEED+=0.2
+    if(COUNTER==5 and SPEED<=3):
+        SPEED+=0.3
         COUNTER=0
         print(SPEED)
     rail=randrange(3)  # rail={0,1,2}
@@ -126,20 +121,19 @@ def generate_obstacle():
 #########################################################################
 def draw_old_obstacles():
     global OBSTACLE_X, OBSTACLE_Z, SPEED
-
+    
     glPushMatrix()
     for i in range(len(OBSTACLE_X)):
         glPushMatrix()
         glColor3d(1, 1, 0)
-
+        
         glTranslate(OBSTACLE_X[i], 0, OBSTACLE_Z[i])
         glRotate(PHASE[i], 1, 0, 1)
         OBSTACLE_Z[i] -= SPEED
         glutSolidCube(5)
         PHASE[i] += 3
         glPopMatrix()
-        # glTranslate(-OBSTACLE_X[i],0,-OBSTACLE_Z[i])
-
+    
     glPopMatrix()
 #########################################################################
 def draw_text(string, x, y):
@@ -171,18 +165,16 @@ def Game():
         draw_text("SCORE :", 500,500)
     else:
     
-        if(GENERATE%180==0):
+        if(GENERATE%120==0):
             generate_obstacle()
+        
         draw_screen()
         
         draw_old_obstacles()
         
-        crash_detector()
-
         Draw_vehicle()
         
-        
-        
+        crash_detector()
         
         if(SPEED <1.5):
             STEP=3
@@ -212,11 +204,10 @@ def mouse_callback(x, y):
 #########################################################################
 def crash_detector():
     global X,OBSTACLE_X,OBSTACLE_Z,LIFE,SPEED,PHASE
-    if (len(OBSTACLE_X) and OBSTACLE_Z[0]<5 and  OBSTACLE_Z[0]>4.9-SPEED):
+    if (OBSTACLE_Z[0]<5 and  OBSTACLE_Z[0]>4-SPEED and abs(X-OBSTACLE_X[0])<=6):
         
-        if (X>1 and OBSTACLE_X[0]==8 or X<-1 and OBSTACLE_X[0]==-8 or X<5 and X>-5 and OBSTACLE_X[0]==0):
-            LIFE-=1
-            print ('crash '*15)
+        LIFE-=1
+        print ('crash '*15)
     
     
     if(len(OBSTACLE_X) and OBSTACLE_Z[0]<=-10  ):
