@@ -5,11 +5,13 @@ from numpy import *
 from random import randrange
 #########################################################################
 X=0
-speed=0
-life=3
-obstacle_X=[]
-obstacle_Z=[]
-generate=0
+SPEED=1
+BALL_ROTATE=0
+LIFE=3
+OBSTACLE_X=[]
+OBSTACLE_Z=[]
+COUNTER=0
+GENERATE=250
 #########################################################################
 def init_my_scene(Width, Height):
     glClearColor(0.2, 0.2, 0.3, 1) # set the background to blue-grey
@@ -19,55 +21,61 @@ def init_my_scene(Width, Height):
     glMatrixMode(GL_MODELVIEW)
 #########################################################################
 def Draw_vehicle():
-    global X,speed
+    global X,BALL_ROTATE
     glColor3d(1,0,1)
     glPushMatrix()
     glTranslate(X,0,0)
-    glRotate(speed,1,0,0)
-    glutWireSphere(1.8,20,20)
+    glRotate(BALL_ROTATE,1,0,0)
+    glutWireSphere(2,20,20)
     glPopMatrix()
-    speed+=3
+    BALL_ROTATE+=3
 #########################################################################
 def generate_obstacle():
+    global OBSTACLE_X,OBSTACLE_Z,COUNTER,SPEED
+    COUNTER+=1
+    if(COUNTER==10 and SPEED<=2):
+        SPEED+=0.2
+        COUNTER=0
+        print(SPEED)
     rail=randrange(3)  # rail={0,1,2}
-    obstacle_X.append((rail-1)*4.5) # X = {-5,0,5}
-    obstacle_Z.append(100)
+    OBSTACLE_X.append((rail-1)*6) # X = {-5,0,5}
+    OBSTACLE_Z.append(100)
 #########################################################################
 def draw_old_obstacles():
-    global obstacle_X,obstacle_Z
+    global OBSTACLE_X,OBSTACLE_Z,SPEED
     
     glPushMatrix()
-    for i in range (len(obstacle_X)):
+    for i in range (len(OBSTACLE_X)):
         glPushMatrix()
         glColor3d(1,1,0)
         
-        glScale(1.5,2,1.5)
-        glTranslate(obstacle_X[i],0,obstacle_Z[i])
-        obstacle_Z[i]-=1
-        glutSolidCube(4)
+        glTranslate(OBSTACLE_X[i],0,OBSTACLE_Z[i])
+        OBSTACLE_Z[i]-=SPEED
+        glutSolidCube(6)
         
         glPopMatrix()
-        # glTranslate(-obstacle_X[i],0,-obstacle_Z[i])
+        # glTranslate(-OBSTACLE_X[i],0,-OBSTACLE_Z[i])
         
     glPopMatrix()
 #########################################################################
 def Game():
     
-    global generate   # variables
+    global GENERATE,SPEED   # variables
     
     # initializing
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT )  
     glEnable(GL_DEPTH_TEST)
     glLoadIdentity()
     #          center     Look at   Up
-    gluLookAt(0,20,-20,  0,10,0,  0,1,0)
+    gluLookAt(0,25,-25,  0,10,0,  0,1,0)
     
-    if not life:
+    if not LIFE:
         Game_over
     else:
     
-        if(generate%50==0):
+        if(GENERATE%50==0):
             generate_obstacle()
+        
         
         draw_old_obstacles()
         
@@ -75,27 +83,29 @@ def Game():
         
         Draw_vehicle()
         
-        generate+=1
+        GENERATE+=1
     
     glutSwapBuffers()
 
 #########################################################################
 def keyboard_callback(key, x, y):
-    global X,Z
+    global X
     if key == GLUT_KEY_LEFT and X<6:
         X+=6
     elif key == GLUT_KEY_RIGHT and X>-6:
         X-=6
 #########################################################################
 def crash_detector():
-    global X,obstacle_X,obstacle_Z,life
-    if (obstacle_Z[0]==0):
-        if((obstacle_X[0]==0 and X==0) or obstacle_X[0]*X>0):
-            life-=1
-            print ('crash '*1000)
-            
-        obstacle_Z.pop(0)
-        obstacle_X.pop(0)
+    global X,OBSTACLE_X,OBSTACLE_Z,LIFE,SPEED
+    if (OBSTACLE_Z[0]<5 and X==OBSTACLE_X[0] and OBSTACLE_Z[0]>4.9-SPEED):
+        
+            LIFE-=1
+            print ('crash '*15)
+    
+    
+    if(OBSTACLE_Z[0]<=-10):
+        OBSTACLE_Z.pop(0)
+        OBSTACLE_X.pop(0)
         
 #########################################################################
 def Game_over():
@@ -106,7 +116,7 @@ def main():
     glutInit(sys.argv)
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
     glutInitWindowSize(1000, 900)
-    glutInitWindowPosition(300,0)
+    glutInitWindowPosition(600,0)
     window = glutCreateWindow(b"Race The Sun !")
     glutDisplayFunc(Game)
     glutIdleFunc(Game)
