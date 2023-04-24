@@ -125,29 +125,21 @@ def generate_obstacle():
     OBSTACLE_Z.append(100)
 #########################################################################
 def draw_old_obstacles():
-    global OBSTACLE_X,OBSTACLE_Z,SPEED
-    
+    global OBSTACLE_X, OBSTACLE_Z, SPEED
+
     glPushMatrix()
-    for i in range (len(OBSTACLE_X)):
+    for i in range(len(OBSTACLE_X)):
         glPushMatrix()
-        glColor3d(1,1,0)
-        # glLineWidth(10)
-        
-        glTranslate(OBSTACLE_X[i],0,OBSTACLE_Z[i])
-        glRotate(PHASE[i],1,0,1)
-        glScale(1.5, 1.5, 1.5)
-        glTranslate(2.5, -.5, .2)
-        OBSTACLE_Z[i]-=SPEED
-        glBegin(GL_LINES)
-        for edge in asteroid_edges_vector2:
-            for vertex in edge:
-                glVertex3fv(asteroid_verticies_vector3[vertex])
-        glEnd()
-        # glutSolidCube(5)
-        PHASE[i]+=3
+        glColor3d(1, 1, 0)
+
+        glTranslate(OBSTACLE_X[i], 0, OBSTACLE_Z[i])
+        glRotate(PHASE[i], 1, 0, 1)
+        OBSTACLE_Z[i] -= SPEED
+        glutSolidCube(5)
+        PHASE[i] += 3
         glPopMatrix()
         # glTranslate(-OBSTACLE_X[i],0,-OBSTACLE_Z[i])
-        
+
     glPopMatrix()
 #########################################################################
 def draw_text(string, x, y):
