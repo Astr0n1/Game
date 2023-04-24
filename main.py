@@ -113,7 +113,7 @@ def Draw_vehicle():
 def generate_obstacle():
     global OBSTACLE_X,OBSTACLE_Z,PHASE,COUNTER,SPEED
     COUNTER+=1
-    if(COUNTER==5 and SPEED<=3):
+    if(COUNTER==5 and SPEED<=5):
         SPEED+=0.3
         COUNTER=0
         print(SPEED)
@@ -153,7 +153,7 @@ def draw_text(string, x, y):
     string = string.encode()  # conversion from Unicode string to byte string
     for c in string:
         glutStrokeCharacter(GLUT_STROKE_ROMAN, c)
-    print(string)
+    # print(string)
     glPopMatrix()
 #########################################################################
 def Game():
@@ -195,12 +195,13 @@ def Game():
         
         crash_detector()
         
-        if(SPEED <2.3):
+        if(SPEED <3):
             STEP=3
-        elif(SPEED<2.5):
+        elif(SPEED<4):
             STEP=4
-            state="5"
+            
         else:
+            state="5"
             STEP=5
             
         GENERATE+=STEP
