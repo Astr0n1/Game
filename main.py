@@ -8,6 +8,7 @@ X=0
 SPEED=1
 BALL_ROTATE=0
 LIFE=1
+FONT_DOWNSCALE = 0.13
 OBSTACLE_X=[]
 OBSTACLE_Z=[]
 PHASE=[]
@@ -62,6 +63,19 @@ def draw_old_obstacles():
         
     glPopMatrix()
 #########################################################################
+def draw_text(string, x, y):
+    glLineWidth(2)
+    glColor(1, 1, 0)  # Yellow Color
+    glPushMatrix()  # remove the previous transformations
+    # glScale(0.13,0.13,1)  # TODO: Try this line
+    glTranslate(x, y, 0)
+    glScale(FONT_DOWNSCALE, FONT_DOWNSCALE, 1) # when writing text and see nothing downscale it to a very small value .001 and draw at center
+    string = string.encode()  # conversion from Unicode string to byte string
+    for c in string:
+        glutStrokeCharacter(GLUT_STROKE_ROMAN, c)
+    print(string)
+    glPopMatrix()
+#########################################################################
 def Game():
     
     global GENERATE,SPEED   # variables
@@ -74,7 +88,8 @@ def Game():
     gluLookAt(0,25,-25,  0,10,0,  0,1,0)
     
     if not LIFE:
-        Game_over
+        Game_over()
+        draw_text("SCORE :", 500,500)
     else:
     
         if(GENERATE%180==0):
@@ -86,6 +101,9 @@ def Game():
         crash_detector()
         
         Draw_vehicle()
+        
+        
+        
         
         if(SPEED <1.5):
             STEP=3
