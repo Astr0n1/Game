@@ -10,6 +10,7 @@ BALL_ROTATE=0
 LIFE=3
 OBSTACLE_X=[]
 OBSTACLE_Z=[]
+PHASE=[]
 COUNTER=0
 GENERATE=0
 #########################################################################
@@ -31,13 +32,14 @@ def Draw_vehicle():
     BALL_ROTATE+=3
 #########################################################################
 def generate_obstacle():
-    global OBSTACLE_X,OBSTACLE_Z,COUNTER,SPEED
+    global OBSTACLE_X,OBSTACLE_Z,PHASE,COUNTER,SPEED
     COUNTER+=1
     if(COUNTER==10 and SPEED<=2):
         SPEED+=0.2
         COUNTER=0
         print(SPEED)
     rail=randrange(3)  # rail={0,1,2}
+    PHASE.append(randrange(360))
     OBSTACLE_X.append((rail-1)*6) # X = {-5,0,5}
     OBSTACLE_Z.append(100)
 #########################################################################
@@ -50,9 +52,10 @@ def draw_old_obstacles():
         glColor3d(1,1,0)
         
         glTranslate(OBSTACLE_X[i],0,OBSTACLE_Z[i])
+        glRotate(PHASE[i],1,0,1)
         OBSTACLE_Z[i]-=SPEED
         glutSolidCube(6)
-        
+        PHASE[i]+=3
         glPopMatrix()
         # glTranslate(-OBSTACLE_X[i],0,-OBSTACLE_Z[i])
         
@@ -102,7 +105,7 @@ def keyboard_callback(key, x, y):
         X-=1
 #########################################################################
 def crash_detector():
-    global X,OBSTACLE_X,OBSTACLE_Z,LIFE,SPEED
+    global X,OBSTACLE_X,OBSTACLE_Z,LIFE,SPEED,PHASE
     if (len(OBSTACLE_X) and OBSTACLE_Z[0]<5 and  OBSTACLE_Z[0]>4.9-SPEED):
         
         if (X>1 and OBSTACLE_X[0]==6 or X<-1 and OBSTACLE_X[0]==-6 or X<5 and X>-5 and OBSTACLE_X[0]==0):
@@ -113,7 +116,7 @@ def crash_detector():
     if(len(OBSTACLE_X) and OBSTACLE_Z[0]<=-10  ):
         OBSTACLE_Z.pop(0)
         OBSTACLE_X.pop(0)
-        
+        PHASE.pop(0)
 #########################################################################
 def Game_over():
     global X
