@@ -97,14 +97,15 @@ def Game():
 def keyboard_callback(key, x, y):
     global X
     if key == GLUT_KEY_LEFT and X<6:
-        X+=6
+        X+=1
     elif key == GLUT_KEY_RIGHT and X>-6:
-        X-=6
+        X-=1
 #########################################################################
 def crash_detector():
     global X,OBSTACLE_X,OBSTACLE_Z,LIFE,SPEED
-    if (len(OBSTACLE_X) and OBSTACLE_Z[0]<5 and X==OBSTACLE_X[0] and OBSTACLE_Z[0]>4.9-SPEED):
+    if (len(OBSTACLE_X) and OBSTACLE_Z[0]<5 and  OBSTACLE_Z[0]>4.9-SPEED):
         
+        if (X>1 and OBSTACLE_X[0]==6 or X<-1 and OBSTACLE_X[0]==-6 or X<5 and X>-5 and OBSTACLE_X[0]==0):
             LIFE-=1
             print ('crash '*15)
     
