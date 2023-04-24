@@ -7,7 +7,8 @@ from random import randrange
 X=0
 SPEED=1
 BALL_ROTATE=0
-LIFE=3
+LIFE=1
+FONT_DOWNSCALE = 0.13
 OBSTACLE_X=[]
 OBSTACLE_Z=[]
 PHASE=[]
@@ -15,7 +16,7 @@ COUNTER=0
 GENERATE=0
 #########################################################################
 def init_my_scene(Width, Height):
-    glClearColor(0.2, 0.2, 0.3, 1) # set the background to blue-grey
+    glClearColor(0, 0, 0, 1) # set the background to blue-grey
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     gluPerspective(45, float(Width) / float(Height), 20, 200.0)
@@ -23,9 +24,10 @@ def init_my_scene(Width, Height):
 #########################################################################
 def Draw_vehicle():
     global X,BALL_ROTATE
-    glColor3d(1,0,1)
+    X
+    glColor3d(0,0.8,1)
     glPushMatrix()
-    glTranslate(X,0,0)
+    glTranslate(X,0,abs(X/4))
     glRotate(BALL_ROTATE,1,0,0)
     glutWireSphere(2,20,20)
     glPopMatrix()
@@ -40,7 +42,7 @@ def generate_obstacle():
         print(SPEED)
     rail=randrange(3)  # rail={0,1,2}
     PHASE.append(randrange(360))
-    OBSTACLE_X.append((rail-1)*6) # X = {-5,0,5}
+    OBSTACLE_X.append((rail-1)*8) # X = {-8,0,8}
     OBSTACLE_Z.append(100)
 #########################################################################
 def draw_old_obstacles():
@@ -54,11 +56,24 @@ def draw_old_obstacles():
         glTranslate(OBSTACLE_X[i],0,OBSTACLE_Z[i])
         glRotate(PHASE[i],1,0,1)
         OBSTACLE_Z[i]-=SPEED
-        glutSolidCube(6)
+        glutSolidCube(5)
         PHASE[i]+=3
         glPopMatrix()
         # glTranslate(-OBSTACLE_X[i],0,-OBSTACLE_Z[i])
         
+    glPopMatrix()
+#########################################################################
+def draw_text(string, x, y):
+    glLineWidth(2)
+    glColor(1, 1, 0)  # Yellow Color
+    glPushMatrix()  # remove the previous transformations
+    # glScale(0.13,0.13,1)  # TODO: Try this line
+    glTranslate(x, y, 0)
+    glScale(FONT_DOWNSCALE, FONT_DOWNSCALE, 1) # when writing text and see nothing downscale it to a very small value .001 and draw at center
+    string = string.encode()  # conversion from Unicode string to byte string
+    for c in string:
+        glutStrokeCharacter(GLUT_STROKE_ROMAN, c)
+    print(string)
     glPopMatrix()
 #########################################################################
 def Game():
@@ -73,7 +88,8 @@ def Game():
     gluLookAt(0,25,-25,  0,10,0,  0,1,0)
     
     if not LIFE:
-        Game_over
+        Game_over()
+        draw_text("SCORE :", 500,500)
     else:
     
         if(GENERATE%180==0):
@@ -85,6 +101,9 @@ def Game():
         crash_detector()
         
         Draw_vehicle()
+        
+        
+        
         
         if(SPEED <1.5):
             STEP=3
@@ -99,16 +118,24 @@ def Game():
 #########################################################################
 def keyboard_callback(key, x, y):
     global X
-    if key == GLUT_KEY_LEFT and X<6:
+    if key == GLUT_KEY_LEFT and X<8:
         X+=1
-    elif key == GLUT_KEY_RIGHT and X>-6:
+    elif key == GLUT_KEY_RIGHT and X>-8:
         X-=1
+
+def mouse_callback(x, y):
+    global X
+    X = (-x+500)/30
+    if (X>8):
+        X=8
+    elif(X<-8):
+        X=-8
 #########################################################################
 def crash_detector():
     global X,OBSTACLE_X,OBSTACLE_Z,LIFE,SPEED,PHASE
     if (len(OBSTACLE_X) and OBSTACLE_Z[0]<5 and  OBSTACLE_Z[0]>4.9-SPEED):
         
-        if (X>1 and OBSTACLE_X[0]==6 or X<-1 and OBSTACLE_X[0]==-6 or X<5 and X>-5 and OBSTACLE_X[0]==0):
+        if (X>1 and OBSTACLE_X[0]==8 or X<-1 and OBSTACLE_X[0]==-8 or X<5 and X>-5 and OBSTACLE_X[0]==0):
             LIFE-=1
             print ('crash '*15)
     
@@ -126,11 +153,12 @@ def main():
     glutInit(sys.argv)
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
     glutInitWindowSize(1000, 900)
-    glutInitWindowPosition(600,0)
+    glutInitWindowPosition(400,0)
     window = glutCreateWindow(b"Race The Sun !")
     glutDisplayFunc(Game)
     glutIdleFunc(Game)
-    glutSpecialFunc(keyboard_callback)
+    # glutSpecialFunc(keyboard_callback)
+    glutPassiveMotionFunc(mouse_callback)
     init_my_scene(1000, 900)
     glutMainLoop()
 
