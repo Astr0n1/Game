@@ -11,7 +11,7 @@ from constants import *
 #########################################################################
 X = 0
 SPEED = 2
-LIFE = 20
+LIFE = 1
 state = "3"
 camera_coords = {'x_c': 0, 'y_c': 25, 'z_c': -25,
                  'x_l': 0, 'y_l': 11, 'z_l': 0}
@@ -21,7 +21,7 @@ OBSTACLE_Z = []
 PHASE = []
 COUNTER = 0
 GENERATE = 0
-TEXTURE_NAMES = [0]
+TEXTURE_NAMES = [0, 1]
 MILLISECONDS = 1
 
 
@@ -61,7 +61,8 @@ def texture_setup(texture_image_binary, texture_name, width, height):
 #########################################################################
 def load_texture():
     glEnable(GL_TEXTURE_2D)
-    images = [pygame.image.load("background.jpg")]
+    images = [pygame.image.load("background.jpg"),
+              pygame.image.load("GameOver.jpg")]
     textures = [pygame.image.tostring(image, "RGBA", True)
                 for image in images]
 
@@ -101,11 +102,14 @@ def background_draw():
 
 
 #########################################################################
-def draw_screen():
+def draw_screen(state):
     glPushMatrix()
     glColor(1, 1, 1)
     projection_ortho()
-    glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[0])
+    if state == "start":
+        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[0])
+    elif state == "end":
+        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[1])
     background_draw()
     glBindTexture(GL_TEXTURE_2D, -1)
     init_my_scene(1000, 900)
@@ -217,7 +221,7 @@ def game():
         if GENERATE % 120 == 0:
             generate_obstacle()
 
-        draw_screen()
+        draw_screen("start")
 
         draw_old_obstacles()
 
@@ -286,7 +290,7 @@ def crash_detector():
 
 #########################################################################
 def game_over():
-    global X
+    draw_screen("end")
 
 
 #########################################################################
