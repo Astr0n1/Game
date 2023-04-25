@@ -271,14 +271,14 @@ def mouse_callback(x, y):
 def crash_detector():
     global X, OBSTACLE_X, OBSTACLE_Z, LIFE, PHASE
     if OBSTACLE_Z[0] <= SPEED and abs(X - OBSTACLE_X[0]) <= 6:
-        LIFE -= 1
+        # LIFE -= 1
 
         print('crash ' * 15 + '\n' + '#'*50)
     elif state == '5' and OBSTACLE_Z[1] <= SPEED and abs(X - OBSTACLE_X[1]) <= 6:
-        LIFE -= 1
+        # LIFE -= 1
         print('crash ' * 15 + '\n' + '#'*50)
 
-    if len(OBSTACLE_X) and OBSTACLE_Z[0] <= -10:
+    if len(OBSTACLE_X) and OBSTACLE_Z[0] <= SPEED :
         OBSTACLE_Z.pop(0)
         OBSTACLE_X.pop(0)
         PHASE.pop(0)
