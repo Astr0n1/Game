@@ -21,7 +21,7 @@ OBSTACLE_Z = []
 PHASE = []
 COUNTER = 0
 GENERATE = 0
-TEXTURE_NAMES = [0, 1]
+TEXTURE_NAMES = [0, 1, 2]
 MILLISECONDS = 1
 
 
@@ -62,7 +62,8 @@ def texture_setup(texture_image_binary, texture_name, width, height):
 def load_texture():
     glEnable(GL_TEXTURE_2D)
     images = [pygame.image.load("background.jpg"),
-              pygame.image.load("GameOver.jpg")]
+              pygame.image.load("GameOver.jpg"),
+              pygame.image.load("obstacle.jpeg")]
     textures = [pygame.image.tostring(image, "RGBA", True)
                 for image in images]
 
@@ -101,6 +102,88 @@ def background_draw():
     glEnd()
 
 
+#########################################################################
+def make_obstacle():
+    # Front Face
+    glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[2])
+    glBegin(GL_QUADS)
+    glTexCoord2f(0.0, 0.0)
+    glVertex3f(-1.0, -1.0, 1.0)  # Bottom Left
+
+    glTexCoord2f(1.0, 0.0)
+    glVertex3f(1.0, -1.0, 1.0)  # Bottom Right
+
+    glTexCoord2f(1.0, 1.0)
+    glVertex3f(1.0, 1.0, 1.0)  # Top Right
+
+    glTexCoord2f(0.0, 1.0)
+    glVertex3f(-1.0, 1.0, 1.0)  # Top Left
+    glEnd()
+
+    # Back Face
+    glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[2])
+    glBegin(GL_QUADS)
+    glTexCoord2f(0.0, 0.0)
+    glVertex3f(-1.0, -1.0, -1.0)  # Bottom Right
+    glTexCoord2f(1.0, 0.0)
+    glVertex3f(-1.0, 1.0, -1.0)  # Top Right
+    glTexCoord2f(1.0, 1.0)
+    glVertex3f(1.0, 1.0, -1.0)  # Top Left
+    glTexCoord2f(0.0, 1.0)
+    glVertex3f(1.0, -1.0, -1.0)  # Bottom Left
+    glEnd()
+
+    # Top Face
+    glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[2])
+    glBegin(GL_QUADS)
+    glTexCoord2f(0.0, 0.0)
+    glVertex3f(-1.0, 1.0, -1.0)  # Top Left
+    glTexCoord2f(1.0, 0.0)
+    glVertex3f(-1.0, 1.0, 1.0)  # Bottom Left
+    glTexCoord2f(1.0, 1.0)
+    glVertex3f(1.0, 1.0, 1.0)  # Bottom Right
+    glTexCoord2f(0.0, 1.0)
+    glVertex3f(1.0, 1.0, -1.0)  # Top Right
+    glEnd()
+
+    # Bottom Face
+    glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[2])
+    glBegin(GL_QUADS)
+    glTexCoord2f(0.0, 0.0)
+    glVertex3f(-1.0, -1.0, -1.0)  # Top Right
+    glTexCoord2f(1.0, 0.0)
+    glVertex3f(1.0, -1.0, -1.0)  # Top Left
+    glTexCoord2f(1.0, 1.0)
+    glVertex3f(1.0, -1.0, 1.0)  # Bottom Left
+    glTexCoord2f(0.0, 1.0)
+    glVertex3f(-1.0, -1.0, 1.0)  # Bottom Right
+    glEnd()
+
+    # Right face
+    glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[2])
+    glBegin(GL_QUADS)
+    glTexCoord2f(0.0, 0.0)
+    glVertex3f(1.0, -1.0, -1.0)  # Bottom Right
+    glTexCoord2f(1.0, 0.0)
+    glVertex3f(1.0, 1.0, -1.0)  # Top Right
+    glTexCoord2f(1.0, 1.0)
+    glVertex3f(1.0, 1.0, 1.0)  # Top Left
+    glTexCoord2f(0.0, 1.0)
+    glVertex3f(1.0, -1.0, 1.0)  # Bottom Left
+    glEnd()
+
+    # Left Face
+    glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[2])
+    glBegin(GL_QUADS)
+    glTexCoord2f(0.0, 0.0)
+    glVertex3f(-1.0, -1.0, -1.0)  # Bottom Left
+    glTexCoord2f(1.0, 0.0)
+    glVertex3f(-1.0, -1.0, 1.0)  # Bottom Right
+    glTexCoord2f(1.0, 1.0)
+    glVertex3f(-1.0, 1.0, 1.0)  # Top Right
+    glTexCoord2f(0.0, 1.0)
+    glVertex3f(-1.0, 1.0, -1.0)  # Top Left
+    glEnd()
 #########################################################################
 def draw_screen(state):
     glPushMatrix()
@@ -170,7 +253,10 @@ def draw_old_obstacles():
         glTranslate(OBSTACLE_X[i], 0, OBSTACLE_Z[i])
         glRotate(PHASE[i], 1, 0, 1)
         OBSTACLE_Z[i] -= SPEED
-        glutSolidCube(5)
+        glScale(2.5, 2.5, 2.5)
+        make_obstacle()
+        glBindTexture(GL_TEXTURE_2D, -1)
+        # glutSolidCube(5)
         PHASE[i] += 3
         glPopMatrix()
 
