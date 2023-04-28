@@ -1,11 +1,9 @@
 from random import randrange
-
 import pygame
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from numpy import *
-
 from constants import *
 
 #########################################################################
@@ -364,13 +362,12 @@ def mouse_callback(x, y):
 #########################################################################
 def crash_detector():
     global X, OBSTACLE_X, OBSTACLE_Z, LIFE, PHASE
-    if  len(OBSTACLE_X) and OBSTACLE_Z[0] <= SPEED and abs(X - OBSTACLE_X[0]) <= 6:
+    if  len(OBSTACLE_X) and state == '3' and OBSTACLE_Z[0] <= SPEED and abs(X - OBSTACLE_X[0]) <= 6 :
         LIFE -= 1
         delete_obstacle(1)
         print('crash ' * 15 + '\n' + '#'*50)
         return
 
-        print('crash ' * 15 + '\n' + '#'*50)
     elif len(OBSTACLE_X)>1 and state == '5' and OBSTACLE_Z[1] <= SPEED and abs(X - OBSTACLE_X[1]) <= 6:
         LIFE -= 1
         delete_obstacle(1)
