@@ -414,7 +414,7 @@ def game_over():
 #########################################################################
 def anim_timer(v):
     game()
-    glutTimerFunc(MILLISECONDS, anim_timer, v + 1)
+    glutTimerFunc(MILLISECONDS, anim_timer, v)
 
 
 def main():
