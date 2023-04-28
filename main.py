@@ -19,16 +19,16 @@ OBSTACLE_Z = []
 PHASE = []
 COUNTER = 0
 GENERATE = 0
-TEXTURE_NAMES = [0, 1, 2]
-MILLISECONDS = 1
+TEXTURE_NAMES = [0, 1, 2, 3]
+MILLISECONDS = 5
 
 
 #########################################################################
-def projection_ortho():
+def projection_ortho(z_near=-200):
     glLoadIdentity()
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    glOrtho(-1, 1, -1, 1, -200, 1)
+    glOrtho(-1, 1, -1, 1, z_near, 1)
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
 
@@ -36,6 +36,8 @@ def projection_ortho():
 #########################################################################
 def init_textures():
     load_texture()
+    glEnable(GL_BLEND)
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
 
 #########################################################################
@@ -48,12 +50,13 @@ def texture_setup(texture_image_binary, texture_name, width, height):
 
     glTexImage2D(GL_TEXTURE_2D,
                  0,
-                 3,
+                 GL_RGBA,
                  width, height,
                  0,
                  GL_RGBA,
                  GL_UNSIGNED_BYTE,
                  texture_image_binary)
+    glBindTexture(GL_TEXTURE_2D, -1)
 
 
 #########################################################################
@@ -61,7 +64,8 @@ def load_texture():
     glEnable(GL_TEXTURE_2D)
     images = [pygame.image.load("background.jpg"),
               pygame.image.load("GameOver.jpg"),
-              pygame.image.load("obstacle.jpeg")]
+              pygame.image.load("obstacle.jpeg"),
+              pygame.image.load("heart.png")]
     textures = [pygame.image.tostring(image, "RGBA", True)
                 for image in images]
 
@@ -98,7 +102,21 @@ def background_draw():
     glTexCoord2f(1, 1)
     glVertex(1, 1)
     glEnd()
+#########################################################################
+def heart_draw():
+    glBegin(GL_QUADS)
+    glTexCoord2f(0, 1)
+    glVertex(-.9, .9)
 
+    glTexCoord2f(0, 0)
+    glVertex(-.9, .8)
+
+    glTexCoord2f(1, 0)
+    glVertex(-.8, .8)
+
+    glTexCoord2f(1, 1)
+    glVertex(-.8, .9)
+    glEnd()
 
 #########################################################################
 def make_obstacle():
@@ -186,12 +204,19 @@ def make_obstacle():
 def draw_screen(state):
     glPushMatrix()
     glColor(1, 1, 1)
-    projection_ortho()
+    projection_ortho(-220)
     if state == "start":
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[0])
     elif state == "end":
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[1])
     background_draw()
+    projection_ortho()
+    glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[3])
+    for i in range(LIFE):
+        glPushMatrix()
+        glTranslate(i * .15, 0, 0)
+        heart_draw()
+        glPopMatrix()
     glBindTexture(GL_TEXTURE_2D, -1)
     init_my_scene(1000, 900)
     glPopMatrix()
@@ -344,7 +369,6 @@ def keyboard_callback(key, x, y):
     elif key == GLUT_KEY_RIGHT and X > -8:
         X -= 1
 
-
 def mouse_callback(x, y):
     global X, state
     X = (-x + 500) / 30
@@ -371,7 +395,7 @@ def crash_detector():
     elif len(OBSTACLE_X)>1 and state == '5':
         if OBSTACLE_Z[0] <= SPEED and abs(X - OBSTACLE_X[0]) <= 6 or  OBSTACLE_Z[1] <= SPEED and abs(X - OBSTACLE_X[1]) <= 6:
             LIFE -= 1
-            delete_obstacle(1)
+            delete_obstacle(2)
             print('crash ' * 15 + '\n' + '#'*50)
             return
 
