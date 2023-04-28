@@ -368,11 +368,12 @@ def crash_detector():
         print('crash ' * 15 + '\n' + '#'*50)
         return
 
-    elif len(OBSTACLE_X)>1 and state == '5' and OBSTACLE_Z[1] <= SPEED and abs(X - OBSTACLE_X[1]) <= 6:
-        LIFE -= 1
-        delete_obstacle(1)
-        print('crash ' * 15 + '\n' + '#'*50)
-        return
+    elif len(OBSTACLE_X)>1 and state == '5':
+        if OBSTACLE_Z[0] <= SPEED and abs(X - OBSTACLE_X[0]) <= 6 or  OBSTACLE_Z[1] <= SPEED and abs(X - OBSTACLE_X[1]) <= 6:
+            LIFE -= 1
+            delete_obstacle(1)
+            print('crash ' * 15 + '\n' + '#'*50)
+            return
 
     if len(OBSTACLE_X) and OBSTACLE_Z[0] < -6 :
         if state == "5" and OBSTACLE_Z[1] < -6:
