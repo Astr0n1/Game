@@ -271,7 +271,7 @@ def draw_screen(state):
     background_draw()
     projection_ortho()
     glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[3])
-    for i in range(LIFE):
+    for i in range(life):
         glPushMatrix()
         glTranslate(i * .15, 0, 0)
         heart_draw()
@@ -420,7 +420,7 @@ def game_over():
 def anim_timer(v):
     game()
 
-    glutTimerFunc(INTERVAL, anim_timer, v + 1)
+    glutTimerFunc(MILLISECONDS, anim_timer, v + 1)
 
 
 def main():
@@ -430,7 +430,7 @@ def main():
     glutInitWindowPosition(400, 0)
     glutCreateWindow(b"Race The Sun !")
     glutDisplayFunc(game)
-    glutTimerFunc(INTERVAL, anim_timer, 1)
+    glutTimerFunc(MILLISECONDS, anim_timer, 1)
     init_textures()
     # glutSpecialFunc(keyboard_callback)
     glutPassiveMotionFunc(mouse_callback)
