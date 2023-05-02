@@ -50,6 +50,7 @@ class obstacle:
             self.Z[i] -= speed
             glScale(2.5, 2.5, 2.5)
             obstacles.make_obstacle()
+
             glBindTexture(GL_TEXTURE_2D, -1)
             # glutSolidCube(5)
             self.PHASE[i] += 3
@@ -146,11 +147,13 @@ class obstacle:
         glVertex3f(-1.0, 1.0, -1.0)  # Top Left
         glEnd()
 
+
 #########################################################################
 obstacles=obstacle()
 X = 0
 speed = 2
-LIFE = 3
+
+life = 3
 state = "3"
 camera_coords = {'x_c': 0, 'y_c': 25, 'z_c': -25,
                  'x_l': 0, 'y_l': 11, 'z_l': 0}
@@ -330,7 +333,7 @@ def game():
               camera_coords['x_l'], camera_coords['y_l'], camera_coords['z_l'],
               0, 1, 0)
 
-    if not LIFE:
+    if not life:
         game_over()
         draw_text("SCORE :", 500, 500)
     else:
@@ -385,16 +388,18 @@ def mouse_callback(x, y):
 
 #########################################################################
 def crash_detector():
-    global X, LIFE
+
+    global X, obstacles, life
     if  len(obstacles.X) and state == '3' and obstacles.Z[0] <= speed and abs(X - obstacles.X[0]) <= 6 :
-        LIFE -= 1
+        life -= 1
         obstacles.delete_obstacle(1)
         print('crash ' * 15 + '\n' + '#'*50)
         return
 
     elif len(obstacles.X)>1 and state == '5':
         if obstacles.Z[0] <= speed and abs(X - obstacles.X[0]) <= 6 or  obstacles.Z[1] <= speed and abs(X - obstacles.X[1]) <= 6:
-            LIFE -= 1
+
+            life -= 1
             obstacles.delete_obstacle(2)
             print('crash ' * 15 + '\n' + '#'*50)
             return
@@ -414,7 +419,8 @@ def game_over():
 #########################################################################
 def anim_timer(v):
     game()
-    glutTimerFunc(MILLISECONDS, anim_timer, v)
+
+    glutTimerFunc(INTERVAL, anim_timer, v + 1)
 
 
 def main():
@@ -424,7 +430,7 @@ def main():
     glutInitWindowPosition(400, 0)
     glutCreateWindow(b"Race The Sun !")
     glutDisplayFunc(game)
-    glutTimerFunc(MILLISECONDS, anim_timer, 1)
+    glutTimerFunc(INTERVAL, anim_timer, 1)
     init_textures()
     # glutSpecialFunc(keyboard_callback)
     glutPassiveMotionFunc(mouse_callback)
