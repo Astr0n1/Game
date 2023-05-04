@@ -1,0 +1,16 @@
+3 Teams
+
+# Ahmed
+1: powerUps   => fuel ,hearts ,collision detector
+
+# eslam
+3: game music => main,crash,powerup take
+4: Score => add text to show score ongame and in gameover screen
+
+5: lightening => spaceship
+6: start, gameover backgrounds (debugging)
+
+# popcorn
+2: presentation
+
+
