@@ -166,7 +166,7 @@ factory = {}
 
 
 #########################################################################
-def get_model(path):
+def getModel(path):
     if path not in factory:
         factory[path] = OBJ(path)
         factory[path].generate()
@@ -300,7 +300,7 @@ def draw_vehicle():
     glTranslate(X, 0, abs(X / 6))
     glRotate(3 * X, 0, 0, 1)
     glScale(.6, .6, .7)
-    get_model("models/Jet_01.obj").render()
+    getModel("models/Jet_01.obj").render()
     # glBegin(GL_LINES)
     # for edge in spaceship_edges_vector2:
     #     for vertex in edge:
