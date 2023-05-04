@@ -5,6 +5,8 @@ from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from numpy import *
 from constants import *
+from objloader import *
+
 
 #########################################################################
 class obstacle:
@@ -162,8 +164,16 @@ counter = 0
 generate = 0
 TEXTURE_NAMES = [0, 1, 2, 3]
 MILLISECONDS = 5
+factory = {}
 
 
+#########################################################################
+def get_model(path):
+    if path not in factory:
+        factory[path] = OBJ(path)
+        factory[path].generate()
+
+    return factory[path]
 #########################################################################
 def projection_ortho(z_near=-200):
     glLoadIdentity()
@@ -289,11 +299,12 @@ def draw_vehicle():
     glTranslate(X, 0, abs(X / 6))
     glRotate(3 * X, 0, 0, 1)
     glScale(.6, .6, .7)
-    glBegin(GL_LINES)
-    for edge in spaceship_edges_vector2:
-        for vertex in edge:
-            glVertex3fv(spaceship_verticies_vector3[vertex])
-    glEnd()
+    get_model("models/Jet_01.obj").render()
+    # glBegin(GL_LINES)
+    # for edge in spaceship_edges_vector2:
+    #     for vertex in edge:
+    #         glVertex3fv(spaceship_verticies_vector3[vertex])
+    # glEnd()
     glPopMatrix()
 
 
