@@ -4,7 +4,6 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from numpy import *
-from constants import *
 from objloader import *
 
 
@@ -154,9 +153,8 @@ class obstacle:
 obstacles=obstacle()
 X = 0
 speed = 2
-
 life = 3
-state = "3"
+state = "start"
 camera_coords = {'x_c': 0, 'y_c': 25, 'z_c': -25,
                  'x_l': 0, 'y_l': 11, 'z_l': 0}
 FONT_DOWNSCALE = 0.13
@@ -253,6 +251,8 @@ def background_draw():
     glTexCoord2f(1, 1)
     glVertex(1, 1)
     glEnd()
+
+
 #########################################################################
 def heart_draw():
     glBegin(GL_QUADS)
@@ -269,14 +269,15 @@ def heart_draw():
     glVertex(-.8, .9)
     glEnd()
 
+
 #########################################################################
-def draw_screen(state):
+def draw_screen(screen):
     glPushMatrix()
     glColor(1, 1, 1)
     projection_ortho(-220)
-    if state == "start":
+    if screen == "start":
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[0])
-    elif state == "end":
+    elif screen == "end":
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[1])
     background_draw()
     projection_ortho()
@@ -325,6 +326,25 @@ def draw_text(string, x, y):
 
 
 #########################################################################
+def switch():
+    if state == "start":
+        startGame()
+    elif state == "gameOver":
+        gameOver()
+    else :
+        print("game")
+        game()
+    glutSwapBuffers()
+
+
+#########################################################################
+def startGame():
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    glEnable(GL_DEPTH_TEST)
+    glLoadIdentity()
+    
+#########################################################################
+
 def game():
     global generate, speed, state, camera_coords  # variables
 
@@ -344,44 +364,41 @@ def game():
               camera_coords['x_l'], camera_coords['y_l'], camera_coords['z_l'],
               0, 1, 0)
 
-    if not life:
-        game_over()
-        draw_text("SCORE :", 500, 500)
+    if generate % 120 == 0:
+        obstacles.generate_new_obstacle()
+
+    draw_screen("start")
+
+    obstacles.draw_old_obstacles()
+
+    draw_vehicle()
+
+    collision_detector()
+
+    if speed < 3:
+        STEP = 3
+    elif speed < 4:
+        state = "5"
+        STEP = 4
+
     else:
-
-        if generate % 120 == 0:
-            obstacles.generate_new_obstacle()
-
-        draw_screen("start")
-
-        obstacles.draw_old_obstacles()
-
-        draw_vehicle()
-
-        crash_detector()
-
-        if speed < 3:
-            STEP = 3
-        elif speed < 4:
-            state = "5"
-            STEP = 4
-
-        else:
 
             STEP = 5
 
-        generate += STEP
+    generate += STEP
 
-    glutSwapBuffers()
+
+#########################################################################
+def gameOver():
+    draw_screen("end")
 
 
 #########################################################################
 def keyboard_callback(key, x, y):
-    global X
-    if key == GLUT_KEY_LEFT and X < 8:
-        X += 1
-    elif key == GLUT_KEY_RIGHT and X > -8:
-        X -= 1
+    global state
+    if key == GLUT_KEY_LEFT and state == "start":
+        print(state)
+        state="3"
 
 def mouse_callback(x, y):
     global X, state
@@ -396,15 +413,16 @@ def mouse_callback(x, y):
     elif X < -16 and state == '5':
         X = -16
 
-
 #########################################################################
-def crash_detector():
+def collision_detector():
 
-    global X, obstacles, life
+    global X, obstacles, life, state
     if  len(obstacles.X) and state == '3' and obstacles.Z[0] <= speed and abs(X - obstacles.X[0]) <= 6 :
         life -= 1
         obstacles.delete_obstacle(1)
         print('crash ' * 15 + '\n' + '#'*50)
+        if not life :
+            state="gameOver"
         return
 
     elif len(obstacles.X)>1 and state == '5':
@@ -413,6 +431,8 @@ def crash_detector():
             life -= 1
             obstacles.delete_obstacle(2)
             print('crash ' * 15 + '\n' + '#'*50)
+            if not life :
+                state="gameOver"
             return
 
     if len(obstacles.X) and obstacles.Z[0] < -6 :
@@ -423,14 +443,8 @@ def crash_detector():
 
 
 #########################################################################
-def game_over():
-    draw_screen("end")
-
-
-#########################################################################
 def anim_timer(v):
-    game()
-
+    switch()
     glutTimerFunc(MILLISECONDS, anim_timer, v + 1)
 
 
@@ -440,10 +454,10 @@ def main():
     glutInitWindowSize(1000, 900)
     glutInitWindowPosition(400, 0)
     glutCreateWindow(b"Race The Sun !")
-    glutDisplayFunc(game)
+    glutDisplayFunc(switch)
     glutTimerFunc(MILLISECONDS, anim_timer, 1)
     init_textures()
-    # glutSpecialFunc(keyboard_callback)
+    glutSpecialFunc(keyboard_callback)
     glutPassiveMotionFunc(mouse_callback)
     init_my_scene(1000, 900)
     glutMainLoop()
