@@ -1,19 +1,40 @@
 from random import randrange
-import pygame
-from OpenGL.GL import *
+
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from numpy import *
+
 from objloader import *
 
 
 #########################################################################
+
+# التاسك بتاعنا عبارة عن powerup الي هو الطيارة تاخد بنزين في الطريق و كمان تاخد قلوب
+# البار الي بيعبر عن مستوي البنزين هيكون لوتة بيتغير علي حسب الكمية من الاخضر للاحمر
+def create_life_bar():
+    # todo create a function for create life bar
+    # life bar It is a variable width rectangle
+    pass
+
+
+def create_gas():
+    # todo create  gas
+    ## في التاسك دي حد هيدور علي صورة جركن البنزين و يلزقة علي بوليجون يعني
+
+    pass
+
+
+def create_heart():
+    # todo create heart
+    pass
+
+
 class obstacle:
-    def __init__(self) :
+    def __init__(self):
         self.X = []
         self.Z = []
         self.PHASE = []
-    
+
     def generate_new_obstacle(self):
         global counter, speed
         counter += 1
@@ -30,22 +51,21 @@ class obstacle:
             rail2 = randrange(5)
             while rail1 == rail2:
                 rail2 = randrange(5)
-            
+
             self.X.append((rail2 - 2) * 8)
             self.Z.append(200)
             self.PHASE.append(randrange(360))
-        
+
         self.PHASE.append(randrange(360))
         self.Z.append(200)
-    
-    
+
     def draw_old_obstacles(self):
-        global  speed
+        global speed
         glPushMatrix()
         for i in range(len(self.X)):
             glPushMatrix()
             glColor3d(1, 1, 0)
-            
+
             glTranslate(self.X[i], 0, self.Z[i])
             glRotate(self.PHASE[i], 1, 0, 1)
             self.Z[i] -= speed
@@ -56,16 +76,15 @@ class obstacle:
             # glutSolidCube(5)
             self.PHASE[i] += 3
             glPopMatrix()
-        
+
         glPopMatrix()
-    
-    
-    def delete_obstacle(self,n):
-        for i in range (n):
+
+    def delete_obstacle(self, n):
+        for i in range(n):
             self.Z.pop(0)
             self.X.pop(0)
             self.PHASE.pop(0)
-    
+
     def make_obstacle(self):
         # Front Face
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[2])
@@ -150,7 +169,7 @@ class obstacle:
 
 
 #########################################################################
-obstacles=obstacle()
+obstacles = obstacle()
 X = 0
 speed = 2
 life = 3
@@ -173,6 +192,8 @@ def getModel(path):
         factory[path].generate()
 
     return factory[path]
+
+
 #########################################################################
 def projection_ortho(z_near=-200):
     glLoadIdentity()
@@ -350,6 +371,7 @@ def switch():
         glutSwapBuffers()
 
 
+
 #########################################################################
 
 def game():
@@ -385,7 +407,7 @@ def game():
 
     else:
 
-            STEP = 5
+        STEP = 5
 
     generate += STEP
 
@@ -403,6 +425,7 @@ def keyboard_callback(key, x, y):
         else:
             pause=True
 
+
 def mouse_callback(x, y):
     global X, state
     X = (-x + 500) / 30
@@ -416,28 +439,29 @@ def mouse_callback(x, y):
     elif X < -16 and state == '5':
         X = -16
 
+
 #########################################################################
 def collision_detector():
-
     global X, obstacles, life, state
-    if  len(obstacles.X) and state == '3' and obstacles.Z[0] <= speed and abs(X - obstacles.X[0]) <= 6 :
+    if len(obstacles.X) and state == '3' and obstacles.Z[0] <= speed and abs(X - obstacles.X[0]) <= 6:
         life -= 1
         obstacles.delete_obstacle(1)
         print('crash ' * 15 + '\n' + '#'*50)
         return
 
-    elif len(obstacles.X)>1 and state == '5':
-        if obstacles.Z[0] <= speed and abs(X - obstacles.X[0]) <= 6 or  obstacles.Z[1] <= speed and abs(X - obstacles.X[1]) <= 6:
+    elif len(obstacles.X) > 1 and state == '5':
+        if obstacles.Z[0] <= speed and abs(X - obstacles.X[0]) <= 6 or obstacles.Z[1] <= speed and abs(
+                X - obstacles.X[1]) <= 6:
 
             life -= 1
             obstacles.delete_obstacle(2)
             print('crash ' * 15 + '\n' + '#'*50)
             return
 
-    if len(obstacles.X) and obstacles.Z[0] < -6 :
+    if len(obstacles.X) and obstacles.Z[0] < -6:
         if state == "5" and obstacles.Z[1] < -6:
             obstacles.delete_obstacle(2)
-        else :
+        else:
             obstacles.delete_obstacle(1)
 
 
