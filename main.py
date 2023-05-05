@@ -9,11 +9,11 @@ from objloader import *
 
 #########################################################################
 class obstacle:
-    def __init__(self) :
+    def __init__(self):
         self.X = []
         self.Z = []
         self.PHASE = []
-    
+
     def generate_new_obstacle(self):
         global counter, speed
         counter += 1
@@ -30,22 +30,21 @@ class obstacle:
             rail2 = randrange(5)
             while rail1 == rail2:
                 rail2 = randrange(5)
-            
+
             self.X.append((rail2 - 2) * 8)
             self.Z.append(200)
             self.PHASE.append(randrange(360))
-        
+
         self.PHASE.append(randrange(360))
         self.Z.append(200)
-    
-    
+
     def draw_old_obstacles(self):
-        global  speed
+        global speed
         glPushMatrix()
         for i in range(len(self.X)):
             glPushMatrix()
             glColor3d(1, 1, 0)
-            
+
             glTranslate(self.X[i], 0, self.Z[i])
             glRotate(self.PHASE[i], 1, 0, 1)
             self.Z[i] -= speed
@@ -56,16 +55,15 @@ class obstacle:
             # glutSolidCube(5)
             self.PHASE[i] += 3
             glPopMatrix()
-        
+
         glPopMatrix()
-    
-    
-    def delete_obstacle(self,n):
-        for i in range (n):
+
+    def delete_obstacle(self, n):
+        for i in range(n):
             self.Z.pop(0)
             self.X.pop(0)
             self.PHASE.pop(0)
-    
+
     def make_obstacle(self):
         # Front Face
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[2])
@@ -150,12 +148,14 @@ class obstacle:
 
 
 #########################################################################
-obstacles=obstacle()
+obstacles = obstacle()
 X = 0
 speed = 2
+
 life = 3
 state = "start"
 pause=False
+
 camera_coords = {'x_c': 0, 'y_c': 25, 'z_c': -25,
                  'x_l': 0, 'y_l': 11, 'z_l': 0}
 FONT_DOWNSCALE = 0.13
@@ -167,12 +167,14 @@ factory = {}
 
 
 #########################################################################
-def getModel(path):
+def get_model(path):
     if path not in factory:
         factory[path] = OBJ(path)
         factory[path].generate()
 
     return factory[path]
+
+
 #########################################################################
 def projection_ortho(z_near=-200):
     glLoadIdentity()
@@ -281,6 +283,7 @@ def draw_screen():
     if state == "start":
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[4])
     elif state == "gameOver":
+
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[1])
     else :
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[0])
@@ -307,7 +310,7 @@ def draw_vehicle():
     glTranslate(X, 0, abs(X / 6))
     glRotate(3 * X, 0, 0, 1)
     glScale(.6, .6, .7)
-    getModel("models/Jet_01.obj").render()
+    get_model("models/Jet_01.obj").render()
     # glBegin(GL_LINES)
     # for edge in spaceship_edges_vector2:
     #     for vertex in edge:
@@ -351,7 +354,6 @@ def switch():
 
 
 #########################################################################
-
 def game():
     global generate, speed, state, camera_coords  # variables
 
@@ -366,29 +368,33 @@ def game():
               camera_coords['x_l'], camera_coords['y_l'], camera_coords['z_l'],
               0, 1, 0)
 
-    if generate % 120 == 0:
-        obstacles.generate_new_obstacle()
+    if not life:
+        game_over()
+        draw_text("SCORE :", 500, 500)
+    else:
 
     draw_screen()
 
-    obstacles.draw_old_obstacles()
 
-    draw_vehicle()
+        draw_screen("start")
 
-    collision_detector()
+        obstacles.draw_old_obstacles()
 
-    if speed < 3:
-        STEP = 3
-    elif speed < 4:
-        state = "5"
-        STEP = 4
+        draw_vehicle()
 
-    else:
+        crash_detector()
+
+        if speed < 3:
+            STEP = 3
+        elif speed < 4:
+            state = "5"
+            STEP = 4
+
+        else:
 
             STEP = 5
 
-    generate += STEP
-
+        generate += STEP
 
 #########################################################################
 def keyboard_callback(key, x, y):
@@ -403,6 +409,7 @@ def keyboard_callback(key, x, y):
         else:
             pause=True
 
+
 def mouse_callback(x, y):
     global X, state
     X = (-x + 500) / 30
@@ -416,34 +423,42 @@ def mouse_callback(x, y):
     elif X < -16 and state == '5':
         X = -16
 
-#########################################################################
-def collision_detector():
 
-    global X, obstacles, life, state
-    if  len(obstacles.X) and state == '3' and obstacles.Z[0] <= speed and abs(X - obstacles.X[0]) <= 6 :
+#########################################################################
+def crash_detector():
+    global X, obstacles, life
+    if len(obstacles.X) and state == '3' and obstacles.Z[0] <= speed and abs(X - obstacles.X[0]) <= 6:
         life -= 1
         obstacles.delete_obstacle(1)
         print('crash ' * 15 + '\n' + '#'*50)
+
         return
 
-    elif len(obstacles.X)>1 and state == '5':
-        if obstacles.Z[0] <= speed and abs(X - obstacles.X[0]) <= 6 or  obstacles.Z[1] <= speed and abs(X - obstacles.X[1]) <= 6:
-
+    elif len(obstacles.X) > 1 and state == '5':
+        if obstacles.Z[0] <= speed and abs(X - obstacles.X[0]) <= 6 or obstacles.Z[1] <= speed and abs(
+                X - obstacles.X[1]) <= 6:
             life -= 1
             obstacles.delete_obstacle(2)
             print('crash ' * 15 + '\n' + '#'*50)
+
             return
 
-    if len(obstacles.X) and obstacles.Z[0] < -6 :
+    if len(obstacles.X) and obstacles.Z[0] < -6:
         if state == "5" and obstacles.Z[1] < -6:
             obstacles.delete_obstacle(2)
-        else :
+        else:
             obstacles.delete_obstacle(1)
 
 
 #########################################################################
+def game_over():
+    draw_screen("end")
+
+
+#########################################################################
 def anim_timer(v):
-    switch()
+    game()
+
     glutTimerFunc(MILLISECONDS, anim_timer, v + 1)
 
 
@@ -453,7 +468,7 @@ def main():
     glutInitWindowSize(1000, 900)
     glutInitWindowPosition(400, 0)
     glutCreateWindow(b"Race The Sun !")
-    glutDisplayFunc(switch)
+    glutDisplayFunc(game)
     glutTimerFunc(MILLISECONDS, anim_timer, 1)
     init_textures()
     glutKeyboardFunc(keyboard_callback)
