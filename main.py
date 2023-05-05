@@ -153,13 +153,15 @@ X = 0
 speed = 2
 
 life = 3
-state = "3"
+state = "start"
+pause=False
+
 camera_coords = {'x_c': 0, 'y_c': 25, 'z_c': -25,
                  'x_l': 0, 'y_l': 11, 'z_l': 0}
 FONT_DOWNSCALE = 0.13
 counter = 0
 generate = 0
-TEXTURE_NAMES = [0, 1, 2, 3]
+TEXTURE_NAMES = [0, 1, 2, 3,4]
 MILLISECONDS = 5
 factory = {}
 
@@ -215,7 +217,8 @@ def load_texture():
     images = [pygame.image.load("background.jpg"),
               pygame.image.load("GameOver.jpg"),
               pygame.image.load("obstacle.jpeg"),
-              pygame.image.load("heart.png")]
+              pygame.image.load("heart.png"),
+              pygame.image.load("Start.jpg")]
     textures = [pygame.image.tostring(image, "RGBA", True)
                 for image in images]
 
@@ -272,22 +275,28 @@ def heart_draw():
 
 
 #########################################################################
-def draw_screen(state):
+def draw_screen():
     glPushMatrix()
     glColor(1, 1, 1)
     projection_ortho(-220)
+    
     if state == "start":
-        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[0])
-    elif state == "end":
+        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[4])
+    elif state == "gameOver":
+
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[1])
+    else :
+        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[0])
     background_draw()
     projection_ortho()
     glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[3])
-    for i in range(life):
-        glPushMatrix()
-        glTranslate(i * .15, 0, 0)
-        heart_draw()
-        glPopMatrix()
+    
+    if state=="3" or state=="5":
+        for i in range(life):
+            glPushMatrix()
+            glTranslate(i * .15, 0, 0)
+            heart_draw()
+            glPopMatrix()
     glBindTexture(GL_TEXTURE_2D, -1)
     init_my_scene(1000, 900)
     glPopMatrix()
@@ -327,13 +336,26 @@ def draw_text(string, x, y):
 
 
 #########################################################################
-def game():
-    global generate, speed, state, camera_coords  # variables
-
-    # initializing
+def switch():
+    global state
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glEnable(GL_DEPTH_TEST)
     glLoadIdentity()
+    draw_screen()
+    
+    if not life:
+        state="gameOver"
+    
+    if (state == "3" or state =="5") and pause == False:
+        # print("game")
+        game()
+    if not pause :
+        glutSwapBuffers()
+
+
+#########################################################################
+def game():
+    global generate, speed, state, camera_coords  # variables
 
     if state == "5":
         if camera_coords['y_c'] < 50:
@@ -351,8 +373,8 @@ def game():
         draw_text("SCORE :", 500, 500)
     else:
 
-        if generate % 120 == 0:
-            obstacles.generate_new_obstacle()
+    draw_screen()
+
 
         draw_screen("start")
 
@@ -374,16 +396,18 @@ def game():
 
         generate += STEP
 
-    glutSwapBuffers()
-
-
 #########################################################################
 def keyboard_callback(key, x, y):
-    global X
-    if key == GLUT_KEY_LEFT and X < 8:
-        X += 1
-    elif key == GLUT_KEY_RIGHT and X > -8:
-        X -= 1
+    global state,pause
+    if key == b's' and state == "start":
+        print(state)
+        state="3"
+    if key == b'p':
+        print ("pause")
+        if pause ==True:
+            pause = False
+        else:
+            pause=True
 
 
 def mouse_callback(x, y):
@@ -406,7 +430,8 @@ def crash_detector():
     if len(obstacles.X) and state == '3' and obstacles.Z[0] <= speed and abs(X - obstacles.X[0]) <= 6:
         life -= 1
         obstacles.delete_obstacle(1)
-        print('crash ' * 15 + '\n' + '#' * 50)
+        print('crash ' * 15 + '\n' + '#'*50)
+
         return
 
     elif len(obstacles.X) > 1 and state == '5':
@@ -414,7 +439,8 @@ def crash_detector():
                 X - obstacles.X[1]) <= 6:
             life -= 1
             obstacles.delete_obstacle(2)
-            print('crash ' * 15 + '\n' + '#' * 50)
+            print('crash ' * 15 + '\n' + '#'*50)
+
             return
 
     if len(obstacles.X) and obstacles.Z[0] < -6:
@@ -445,7 +471,7 @@ def main():
     glutDisplayFunc(game)
     glutTimerFunc(MILLISECONDS, anim_timer, 1)
     init_textures()
-    # glutSpecialFunc(keyboard_callback)
+    glutKeyboardFunc(keyboard_callback)
     glutPassiveMotionFunc(mouse_callback)
     init_my_scene(1000, 900)
     glutMainLoop()
