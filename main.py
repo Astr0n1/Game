@@ -17,8 +17,8 @@ class obstacle:
     def generate_new_obstacle(self):
         global counter, speed
         counter += 1
-        if counter == 5 and speed <= 5:
-            speed += 0.3
+        if counter == 5 and speed <= 4:
+            speed += 3/(7*speed)
             counter = 0
             print(speed)
         if state == '3':
@@ -162,7 +162,7 @@ FONT_DOWNSCALE = 0.13
 counter = 0
 generate = 0
 TEXTURE_NAMES = [0, 1, 2, 3,4]
-MILLISECONDS = 5
+MILLISECONDS = 15
 factory = {}
 
 
@@ -369,23 +369,17 @@ def game():
     if generate % 120 == 0:
         obstacles.generate_new_obstacle()
 
-    draw_screen()
-
     obstacles.draw_old_obstacles()
 
     draw_vehicle()
 
-    collision_detector()
+    collision_detection()
 
     if speed < 3:
         STEP = 3
-    elif speed < 4:
+    else:
         state = "5"
         STEP = 4
-
-    else:
-
-            STEP = 5
 
     generate += STEP
 
@@ -417,7 +411,7 @@ def mouse_callback(x, y):
         X = -16
 
 #########################################################################
-def collision_detector():
+def collision_detection():
 
     global X, obstacles, life, state
     if  len(obstacles.X) and state == '3' and obstacles.Z[0] <= speed and abs(X - obstacles.X[0]) <= 6 :
@@ -430,7 +424,9 @@ def collision_detector():
         if obstacles.Z[0] <= speed and abs(X - obstacles.X[0]) <= 6 or  obstacles.Z[1] <= speed and abs(X - obstacles.X[1]) <= 6:
 
             life -= 1
-            obstacles.delete_obstacle(2)
+            if obstacles.Z[0] == obstacles.Z[1]:
+                obstacles.delete_obstacle(1)
+            obstacles.delete_obstacle(1)
             print('crash ' * 15 + '\n' + '#'*50)
             return
 
