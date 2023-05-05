@@ -359,10 +359,10 @@ def game():
 
     if state == "5":
         if camera_coords['y_c'] < 50:
-            camera_coords['y_c'] += 0.5
-            camera_coords['z_c'] -= 0.5
-            camera_coords['y_l'] -= 3 / 50
-            camera_coords['z_l'] += 0.7
+            camera_coords['y_c'] += 0.25
+            camera_coords['z_c'] -= 0.25
+            camera_coords['y_l'] -= 0.03
+            camera_coords['z_l'] += 0.35
 
     gluLookAt(camera_coords['x_c'], camera_coords['y_c'], camera_coords['z_c'],
               camera_coords['x_l'], camera_coords['y_l'], camera_coords['z_l'],
@@ -372,11 +372,6 @@ def game():
         game_over()
         draw_text("SCORE :", 500, 500)
     else:
-
-    draw_screen()
-
-
-        draw_screen("start")
 
         obstacles.draw_old_obstacles()
 
@@ -452,7 +447,7 @@ def crash_detector():
 
 #########################################################################
 def game_over():
-    draw_screen("end")
+    draw_screen()
 
 
 #########################################################################
