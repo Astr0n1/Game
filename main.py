@@ -8,7 +8,27 @@ from objloader import *
 
 
 #########################################################################
-#this is a test for check  pull req
+
+# التاسك بتاعنا عبارة عن powerup الي هو الطيارة تاخد بنزين في الطريق و كمان تاخد قلوب
+# البار الي بيعبر عن مستوي البنزين هيكون لوتة بيتغير علي حسب الكمية من الاخضر للاحمر
+def create_life_bar():
+    # todo create a function for create life bar
+    # life bar It is a variable width rectangle
+    pass
+
+
+def create_gas():
+    # todo create  gas
+    ## في التاسك دي حد هيدور علي صورة جركن البنزين و يلزقة علي بوليجون يعني
+
+    pass
+
+
+def create_heart():
+    # todo create heart
+    pass
+
+
 class obstacle:
     def __init__(self):
         self.X = []
