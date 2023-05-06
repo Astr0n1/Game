@@ -1,9 +1,9 @@
 from random import randrange
-import pygame
-from OpenGL.GL import *
+
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from numpy import *
+
 from objloader import *
 
 
@@ -153,7 +153,6 @@ class Fuel:
         self.Z = []
 
     def generate_new_fuel(self):
-
         if state == '3':
             rail = randrange(3)  # rail={0,1,2}
             self.X.append((rail - 1) * 8)
@@ -197,9 +196,18 @@ class Fuel:
         glVertex(-1, 1)
         glEnd()
 
-    def fuel_level_bar(self):
-        # todo create fuel level bar
-        pass
+    def fuel_level_bar(self , fuel_level):
+        glColor3d(1-fuel_level/100, fuel_level/100, 0.0)
+        print('data')
+        print(fuel_level)
+        glLoadIdentity()
+        glBegin(GL_POLYGON)
+        glVertex2d(-0.9, 0.7*fuel_level/100)
+        glVertex2d(-0.92, 0.7*fuel_level/100)
+        glVertex2d(-0.92, -0.1)
+        glVertex2d(-0.9, -0.1)
+
+        glEnd()
 
 
 #########################################################################
@@ -216,6 +224,7 @@ FONT_DOWNSCALE = 0.13
 counter = 0
 generate = 0
 fuel_generate = 0
+fuel_level=100
 TEXTURE_NAMES = [0, 1, 2, 3, 4, 5]
 MILLISECONDS = 15
 factory = {}
@@ -344,6 +353,7 @@ def draw_screen():
     else:
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[0])
     background_draw()
+
     projection_ortho()
     glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[3])
 
@@ -353,7 +363,10 @@ def draw_screen():
             glTranslate(i * .15, 0, 0)
             heart_draw()
             glPopMatrix()
-    glBindTexture(GL_TEXTURE_2D, -1)
+        glBindTexture(GL_TEXTURE_2D, -1)
+        fuel.fuel_level_bar(fuel_level)
+
+
     init_my_scene(1000, 900)
     glPopMatrix()
 
@@ -412,7 +425,7 @@ def switch():
 #########################################################################
 
 def game():
-    global generate, fuel_generate, speed, state, camera_coords  # variables
+    global generate, fuel_generate,fuel_level, speed, state, camera_coords  # variables
 
     if state == "5":
         if camera_coords['y_c'] < 50:
@@ -444,6 +457,7 @@ def game():
 
     generate += STEP
     fuel_generate += STEP
+    fuel_level -=0.2
 
 
 #########################################################################
