@@ -457,7 +457,7 @@ def game():
 
     generate += STEP
     fuel_generate += STEP
-    fuel_level -=0.2
+    fuel_level -=0.25
 
 
 #########################################################################
