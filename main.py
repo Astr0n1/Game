@@ -243,7 +243,7 @@ obstacles = obstacle()
 fuel = Fuel()
 X = 0
 speed = 2
-life = 10
+life = 3
 state = "start"
 pause = False
 camera_coords = {'x_c': 0, 'y_c': 25, 'z_c': -25,
@@ -251,6 +251,7 @@ camera_coords = {'x_c': 0, 'y_c': 25, 'z_c': -25,
 FONT_DOWNSCALE = 0.13
 counter = 0
 generate = 0
+
 fuel_generate = 0
 fuel_level=100
 TEXTURE_NAMES = [0, 1, 2, 3, 4, 5]
@@ -445,18 +446,17 @@ def draw_vehicle():
 
 
 #########################################################################
-def draw_text(string, x, y):
+def draw_text(string, x=0, y=0, size=5):
+    glPushMatrix()
+    projection_ortho()
     glLineWidth(2)
-    glColor(1, 1, 0)  # Yellow Color
-    glPushMatrix()  # remove the previous transformations
-    # glScale(0.13,0.13,1)  # TODO: Try this line
+    glColor(1, 1, 0)
     glTranslate(x, y, 0)
-    glScale(FONT_DOWNSCALE, FONT_DOWNSCALE,
-            1)  # when writing text and see nothing downscale it to a very small value .001 and draw at center
-    string = string.encode()  # conversion from Unicode string to byte string
-    # for c in string:
-    # glutStrokeCharacter(GLUT_STROKE_ROMAN, c)
-    # print(string)
+    glScale(size / 10000, size / 10000, 1)
+    string = string.encode()
+    for c in string:
+        glutStrokeCharacter(GLUT_STROKE_ROMAN, c)
+    init_my_scene(1000, 900)
     glPopMatrix()
 
 
@@ -484,6 +484,7 @@ def switch():
 def game():
     global generate, fuel_generate,fuel_level, speed, state, camera_coords  # variables
 
+    draw_text("SCORE: " + str((generate // 100) * 100), -.9, .7)
     if state == "5":
         if camera_coords['y_c'] < 50:
             camera_coords['y_c'] += 0.5
@@ -503,7 +504,7 @@ def game():
         create_gas()
 
     obstacles.draw_old_obstacles()
-
+    # draw_text("Hello Word")
     draw_vehicle()
 
     collision_detection()
@@ -511,9 +512,10 @@ def game():
     if speed < 3:
         STEP = 3
     else:
-        state = "5"
         STEP = 4
-
+    if generate >= 4000 and state == "3":
+        generate = 0
+        state = "5"
     generate += STEP
     fuel_generate += STEP
     fuel_level -=0.2
