@@ -1,6 +1,6 @@
 from math import *
 from random import randrange
-
+import pygame.mixer
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from numpy import *
@@ -413,6 +413,7 @@ def background_draw():
     glTexCoord2f(1, 1)
     glVertex(1, 1)
     glEnd()
+    glBindTexture(GL_TEXTURE_2D, -1)
 
 
 #########################################################################
@@ -434,7 +435,7 @@ def heart_draw():
 
 #########################################################################
 def draw_screen():
-    global state
+    global state, background_sound, score
     glPushMatrix()
     glColor(1, 1, 1)
     projection_ortho(-220)
@@ -443,10 +444,12 @@ def draw_screen():
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[4])
     elif state == "gameOver":
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[1])
+        background_sound.stop()
     else:
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[0])
     background_draw()
-
+    if state == "gameOver":
+        draw_text(f"YOUR SCORE: {score}", -.3, .5, 6)
     projection_ortho()
     glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[3])
 
@@ -475,6 +478,7 @@ def lighting():
     MatDifF = [1, 1, 1, 1]
     MatSpecF = [0.1, 0.1, 0.1, 1]
     MatShnF = [30]
+
     #####################################################################################
     glLightfv(GL_LIGHT0, GL_POSITION, LightPos)
     glLightfv(GL_LIGHT0, GL_AMBIENT, LightAmb)
@@ -498,6 +502,8 @@ def draw_vehicle():
     glNormal(Nx, Ny, Nz)
     glEnable(GL_LIGHTING)
     glEnable(GL_LIGHT0)
+    glEnable(GL_COLOR_MATERIAL)
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE)
     glColor3d(0, 0, 0)
     glPushMatrix()
     glTranslate(X, 0, abs(X / 6))
@@ -514,7 +520,7 @@ def draw_text(string, x=0, y=0.0, size=5.0):
     glPushMatrix()
     projection_ortho()
     glLineWidth(2)
-    glColor(1, 1, 0)
+    glColor(1, 1, 1)
     glTranslate(x, y, 0)
     glScale(size / 10000, size / 10000, 1)
     string = string.encode()
@@ -522,7 +528,14 @@ def draw_text(string, x=0, y=0.0, size=5.0):
         glutStrokeCharacter(GLUT_STROKE_ROMAN, c)
     init_my_scene(1000, 900)
     glPopMatrix()
-
+#########################################################################
+def sound_crash(life):
+    if life != 0:
+        crash_sound = pygame.mixer.Sound("crash.wav")
+        crash_sound.play()
+    else:
+        gameover_sound = pygame.mixer.Sound("gameover.mp3")
+        gameover_sound.play()
 
 #########################################################################
 def switch():
@@ -534,7 +547,9 @@ def switch():
 
     if not life:
         state = "gameOver"
-
+    if pause:
+        draw_text("press R to continue ", -.3, 0, 6)
+        glutSwapBuffers()
     if (state == "3" or state == "5") and pause == False:
         # print("game")
         game()
@@ -545,9 +560,11 @@ def switch():
 #########################################################################
 
 def game():
-    global generate, fuel_generate, fuel_level, speed, state, camera_coords  # variables
+    global generate, fuel_generate,fuel_level, speed, state, camera_coords, score  # variables
 
-    draw_text("SCORE: " + str((generate // 100) * 100), -0.9, 0.7)
+    score = (generate // 100) * 100
+    draw_text(f"SCORE: {score}", -.9, .7)
+    draw_text("press P to pause ", -.9, .6, 4)
     if state == "5":
         if camera_coords['y_c'] < 50:
             camera_coords['y_c'] += 0.5
@@ -597,10 +614,10 @@ def keyboard_callback(key, x, y):
         state = "3"
     if key == b'p':
         print("pause")
-        if pause == True:
-            pause = False
-        else:
-            pause = True
+        pause = True
+    if key == b'r':
+        print("resume")
+        pause = False
 
 
 def mouse_callback(x, y):
@@ -619,9 +636,10 @@ def mouse_callback(x, y):
 
 #########################################################################
 def collision_detection():
-    global X, obstacles, life, state
+    global X, obstacles, life, state, crash
     if len(obstacles.X) and state == '3' and obstacles.Z[0] <= speed and abs(X - obstacles.X[0]) <= 6:
         life -= 1
+        sound_crash(life)
         obstacles.delete_obstacle(1)
         print('crash ' * 15 + '\n' + '#' * 50)
         return
@@ -631,6 +649,7 @@ def collision_detection():
                 X - obstacles.X[1]) <= 6:
 
             life -= 1
+            sound_crash(life)
             if obstacles.Z[0] == obstacles.Z[1]:
                 obstacles.delete_obstacle(1)
             obstacles.delete_obstacle(1)
@@ -651,7 +670,11 @@ def anim_timer(v):
 
 
 def main():
+    global background_sound
     glutInit(sys.argv)
+    pygame.init()
+    background_sound = pygame.mixer.Sound("gameplay.mp3")
+    background_sound.play(-1)
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
     glutInitWindowSize(1000, 900)
     glutInitWindowPosition(400, 0)
