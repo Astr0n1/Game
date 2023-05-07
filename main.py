@@ -1,13 +1,42 @@
 from random import randrange
-import pygame
-from OpenGL.GL import *
+from math import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from numpy import *
+
 from objloader import *
 
 
 #########################################################################
+
+# التاسك بتاعنا عبارة عن powerup الي هو الطيارة تاخد بنزين في الطريق و كمان تاخد قلوب
+# البار الي بيعبر عن مستوي البنزين هيكون لوتة بيتغير علي حسب الكمية من الاخضر للاحمر
+def create_fuel_bar():
+    # todo create a function for create life bar
+    # life bar It is a variable width rectangle
+    pass
+
+
+def create_gas():
+    # todo create  gas
+    ## في التاسك دي حد هيدور علي صورة جركن البنزين و يلزقة علي بوليجون يعني
+    
+    fuel_z=obstacles.Z[-1]
+    if state =="3":
+        while True :
+            fuel_x=(randrange(3)-1)*8
+            
+            if fuel_x != obstacles.X[-1]:
+                break
+
+    pass
+
+
+def create_heart():
+    # todo create heart
+    pass
+
+
 class obstacle:
     def __init__(self) :
         self.X = []
@@ -17,9 +46,8 @@ class obstacle:
     def generate_new_obstacle(self):
         global counter, speed
         counter += 1
-        if counter == 5 and speed <= 4:
+        if counter % 5==0 and speed <= 4:
             speed += 3/(7*speed)
-            counter = 0
             print(speed)
         if state == '3':
             rail = randrange(3)  # rail={0,1,2}
@@ -153,7 +181,7 @@ class obstacle:
 obstacles=obstacle()
 X = 0
 speed = 2
-life = 3
+life = 10
 state = "start"
 pause=False
 camera_coords = {'x_c': 0, 'y_c': 25, 'z_c': -25,
@@ -231,6 +259,7 @@ def load_texture():
 
 #########################################################################
 def init_my_scene(width, height):
+    lighting()
     glClearColor(0, 0, 0, 1)  # set the background to blue-grey
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
@@ -300,20 +329,47 @@ def draw_screen():
 
 
 #########################################################################
+def lighting():
+    LightPos=[0, 10, 5, 1]
+    LightAmb=[0, 0, 0, 0]
+    LightDiff=[0.2, 0.2, 0.2, 1.0]
+    LightSpec=[0.03, 0.03, 0.04, 1.0]
+
+    MatAmbF=[1, 1, 1, 1]
+    MatDifF=[1, 1, 1, 1]
+    MatSpecF=[0.1, 0.1, 0.1, 1]
+    MatShnF=[30]
+    #####################################################################################
+    glLightfv(GL_LIGHT0, GL_POSITION, LightPos)
+    glLightfv(GL_LIGHT0, GL_AMBIENT, LightAmb)
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiff)
+    glLightfv(GL_LIGHT0, GL_SPECULAR, LightSpec)
+
+    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE)
+
+    glMaterialfv(GL_FRONT, GL_AMBIENT, MatAmbF)
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, MatDifF)
+    glMaterialfv(GL_FRONT, GL_SPECULAR, MatSpecF)
+    glMaterialfv(GL_FRONT, GL_SHININESS, MatShnF)
+
+#########################################################################
 def draw_vehicle():
     global X
-    glColor3d(0, 0.5, 1)
+    Nx = (0)*cos(X*pi/180) + (0)-sin(X*pi/180)
+    Ny = (0)*sin(X*pi/180) + (0)*cos(X*pi/180)             #Normal vector
+    Nz = 1
+    glNormal(Nx,Ny,Nz)
+    glEnable(GL_LIGHTING)
+    glEnable(GL_LIGHT0)
+    glColor3d(0, 0, 0)
     glPushMatrix()
     glTranslate(X, 0, abs(X / 6))
-    glRotate(3 * X, 0, 0, 1)
+    glRotate(5*X, 0, 0, 1)
     glScale(.6, .6, .7)
     getModel("models/Jet_01.obj").render()
-    # glBegin(GL_LINES)
-    # for edge in spaceship_edges_vector2:
-    #     for vertex in edge:
-    #         glVertex3fv(spaceship_verticies_vector3[vertex])
-    # glEnd()
     glPopMatrix()
+    glDisable(GL_LIGHTING)
+    glDisable(GL_LIGHT0)
 
 
 #########################################################################
@@ -350,6 +406,7 @@ def switch():
         glutSwapBuffers()
 
 
+
 #########################################################################
 
 def game():
@@ -368,6 +425,10 @@ def game():
 
     if generate % 120 == 0:
         obstacles.generate_new_obstacle()
+
+    if counter % 12 == 0:
+        
+        create_gas()
 
     obstacles.draw_old_obstacles()
 
