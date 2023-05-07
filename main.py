@@ -353,6 +353,7 @@ def background_draw():
     glTexCoord2f(1, 1)
     glVertex(1, 1)
     glEnd()
+    glBindTexture(GL_TEXTURE_2D, -1)
 
 
 #########################################################################
@@ -374,7 +375,7 @@ def heart_draw():
 
 #########################################################################
 def draw_screen():
-    global background_sound
+    global background_sound, score
     glPushMatrix()
     glColor(1, 1, 1)
     projection_ortho(-220)
@@ -387,7 +388,8 @@ def draw_screen():
     else:
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[0])
     background_draw()
-
+    if state == "gameOver":
+        draw_text(f"YOUR SCORE: {score}", -.3, .5, 6)
     projection_ortho()
     glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[3])
 
@@ -456,7 +458,7 @@ def draw_text(string, x=0, y=0, size=5):
     glPushMatrix()
     projection_ortho()
     glLineWidth(2)
-    glColor(1, 1, 0)
+    glColor(1, 1, 1)
     glTranslate(x, y, 0)
     glScale(size / 10000, size / 10000, 1)
     string = string.encode()
@@ -483,7 +485,9 @@ def switch():
 
     if not life:
         state = "gameOver"
-
+    if pause:
+        draw_text("press R to continue ", -.3, 0, 6)
+        glutSwapBuffers()
     if (state == "3" or state == "5") and pause == False:
         # print("game")
         game()
@@ -495,9 +499,11 @@ def switch():
 #########################################################################
 
 def game():
-    global generate, fuel_generate,fuel_level, speed, state, camera_coords  # variables
+    global generate, fuel_generate,fuel_level, speed, state, camera_coords, score  # variables
 
-    draw_text("SCORE: " + str((generate // 100) * 100), -.9, .7)
+    score = (generate // 100) * 100
+    draw_text(f"SCORE: {score}", -.9, .7)
+    draw_text("press P to pause ", -.9, .6, 4)
     if state == "5":
         if camera_coords['y_c'] < 50:
             camera_coords['y_c'] += 0.5
@@ -542,10 +548,10 @@ def keyboard_callback(key, x, y):
         state = "3"
     if key == b'p':
         print("pause")
-        if pause == True:
-            pause = False
-        else:
-            pause = True
+        pause = True
+    if key == b'r':
+        print("resume")
+        pause = False
 
 
 def mouse_callback(x, y):
