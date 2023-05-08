@@ -1,14 +1,17 @@
 from random import randrange
 
+import pygame
 from OpenGL.GL import *
 from numpy import *
 
 
 class Fuel:
-    def __init__(self,texture_name=-1):
+    def __init__(self, texture_name=-1):
         self.fuel_x = []
         self.fuel_z = []
         self.texture_name = texture_name
+        pygame.init()
+        self.collision_sound = pygame.mixer.Sound("assets/sound/get_fuel.mp3")
 
     def generate_new_fuel(self, num_of_rail, obstacles_x):
         if num_of_rail == 3:
@@ -56,14 +59,15 @@ class Fuel:
 
     def fuel_level_bar(self, fuel_level=0.0, state=''):
         if fuel_level <= 0:
-            return 'gameOver'
+            state = 'gameOver'
+            return state
         else:
-            glColor3d(1, fuel_level / 100, 0.0)
+            glColor3d(1 - fuel_level / 100, fuel_level / 100, 0.0)
             glLoadIdentity()
             glBegin(GL_POLYGON)
             glVertex2d(-0.9, 0.55)
-            glVertex2d(-0.9+(0.55 * fuel_level / 100), 0.55)
-            glVertex2d(-0.9+(0.55 * fuel_level / 100), 0.50)
+            glVertex2d(-0.9 + (0.55 * fuel_level / 100), 0.55)
+            glVertex2d(-0.9 + (0.55 * fuel_level / 100), 0.50)
             glVertex2d(-0.9, 0.50)
             glEnd()
             return state
@@ -71,9 +75,9 @@ class Fuel:
     def collision_detection(self, space_ship_position, fuel_level, speed):
         if len(self.fuel_x) and self.fuel_z[0] <= speed and abs(
                 space_ship_position - self.fuel_x[0]) <= 6:
+            self.collision_sound.play()
             self.delete_fuel()
             fuel_level = 100.0
         elif len(self.fuel_x) and self.fuel_z[0] < -6:
             self.delete_fuel()
-
         return fuel_level

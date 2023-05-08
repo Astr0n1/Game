@@ -1,5 +1,6 @@
 from random import randrange
 
+import pygame
 from OpenGL.GL import *
 from numpy import *
 
@@ -9,7 +10,8 @@ class Heart:
         self.heart_x = []
         self.heart_z = []
         self.texture_name = texture_name
-
+        pygame.init()
+        self.collision_sound = pygame.mixer.Sound("assets/sound/crash.wav")
     def generate_new_heart(self, num_of_rail, obstacles_x, fuel_x):
 
         if num_of_rail == 3:
@@ -62,6 +64,7 @@ class Heart:
                 space_ship_position - self.heart_x[0]) <= 6:
             if num_of_heart < 3:
                 num_of_heart += 1
+            self.collision_sound.play()
             self.delete_heart()
             return num_of_heart
         if len(self.heart_x) and self.heart_z[0] < -6:

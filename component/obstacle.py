@@ -1,4 +1,5 @@
 from random import randrange
+
 import pygame
 from OpenGL.GL import *
 
@@ -141,34 +142,39 @@ class Obstacle:
         glVertex3f(-1.0, 1.0, -1.0)  # Top Left
         glEnd()
 
-    def collision_detection(self, space_ship_position, num_of_heart, speed, state):
+    def collision_detection(self, space_ship_position, num_of_heart, speed, state, flash):
 
         if len(self.obstacle_x) and state == '3' and self.obstacle_z[0] <= speed and abs(
                 space_ship_position - self.obstacle_x[0]) <= 6:
-            num_of_heart -= 1
-            self.sound_crash(num_of_heart)
-            self.delete_obstacle(1)
-            print('crash ' * 5 + '\n' + '#' * 50)
-
-        elif len(self.obstacle_x) > 1 and state == '5':
-            if self.obstacle_z[0] <= speed and abs(space_ship_position - self.obstacle_x[0]) <= 6 or self.obstacle_z[1] <= speed \
-                    and abs(space_ship_position - self.obstacle_x[1]) <= 6:
+            if flash == 0:
+                flash = 100
                 num_of_heart -= 1
                 self.sound_crash(num_of_heart)
-                if self.obstacle_z[0] == self.obstacle_z[1]:
-                    self.delete_obstacle(1)
                 self.delete_obstacle(1)
-                print('crash ' * 15 + '\n' + '#' * 50)
+                print('crash ' * 5 + '\n' + '#' * 50)
+
+        elif len(self.obstacle_x) > 1 and state == '5':
+            if self.obstacle_z[0] <= speed and abs(space_ship_position - self.obstacle_x[0]) <= 6 or self.obstacle_z[
+                1] <= speed \
+                    and abs(space_ship_position - self.obstacle_x[1]) <= 6:
+                if flash == 0:
+                    flash = 100
+                    num_of_heart -= 1
+                    self.sound_crash(num_of_heart)
+                    if self.obstacle_z[0] == self.obstacle_z[1]:
+                        self.delete_obstacle(1)
+                    self.delete_obstacle(1)
+                    print('crash ' * 15 + '\n' + '#' * 50)
 
         if len(self.obstacle_x) and self.obstacle_z[0] < -6:
             if state == "5" and self.obstacle_z[1] < -6:
                 self.delete_obstacle(2)
             else:
                 self.delete_obstacle(1)
-        return num_of_heart
+        return num_of_heart, flash
 
-    def sound_crash(self, life):
-        if life != 0:
+    def sound_crash(self, num_of_heart):
+        if num_of_heart != 0:
             crash_sound = pygame.mixer.Sound("assets/sound/crash.wav")
             crash_sound.play()
         else:
