@@ -5,7 +5,9 @@ from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from numpy import *
 
-from objloader import *
+from component.fuel import Fuel
+from component.heart import Heart
+from component.objloader import *
 
 
 #########################################################################
@@ -153,156 +155,10 @@ class Obstacle:
         glEnd()
 
 
-class Fuel:
-    def __init__(self):
-        self.X = []
-        self.Z = []
-
-    def generate_new_fuel(self):
-        if state == '3':
-            rail = randrange(3)  # rail={0,1,2}
-            while (rail - 1) * 8 == obstacles.X[0]:
-                rail = randrange(3)
-            self.X.append((rail - 1) * 8)
-        else:
-            rail = randrange(5)
-            while (rail - 2) * 8 == obstacles.X[0]:
-                rail = randrange(5)
-            self.X.append((rail - 2) * 8)
-        self.Z.append(200)
-
-    def draw_old_fuel(self):
-        global speed
-        glPushMatrix()
-        for i in range(len(self.X)):
-            glPushMatrix()
-            glColor3d(1, 1, 0)
-            glTranslate(self.X[i], 0, self.Z[i])
-            self.Z[i] -= speed
-            glScale(2.5, 3, 0)
-            fuel.draw_fuel()
-            glBindTexture(GL_TEXTURE_2D, -1)
-            glPopMatrix()
-        glPopMatrix()
-
-    def delete_fuel(self, ):
-        self.Z.pop(0)
-        self.X.pop(0)
-
-    def draw_fuel(self):
-        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[5])
-        glBegin(GL_QUADS)
-        glTexCoord2f(0, 0)
-        glVertex(-1, -1)
-
-        glTexCoord2f(1, 0)
-        glVertex(1, -1)
-
-        glTexCoord2f(1, 1)
-        glVertex(1, 1)
-
-        glTexCoord2f(0, 1)
-        glVertex(-1, 1)
-        glEnd()
-
-    def fuel_level_bar(self, fuel_level):
-        if fuel_level <= 0:
-            return 'gameOver'
-        else:
-            glColor3d(1 - fuel_level / 100, fuel_level / 100, 0.0)
-            print('data')
-            print(fuel_level)
-            glLoadIdentity()
-            glBegin(GL_POLYGON)
-            glVertex2d(-0.9, 0.7 * fuel_level / 100)
-            glVertex2d(-0.92, 0.7 * fuel_level / 100)
-            glVertex2d(-0.92, 0)
-            glVertex2d(-0.9, 0)
-            glEnd()
-            return state
-
-    def fuel_collision_detection(self):
-        # global X, obstacles, life, state
-        global fuel_level, X
-        if len(self.X) and self.Z[0] <= speed and abs(X - self.X[0]) <= 6:
-            fuel_level = 100
-            self.delete_fuel()
-            print('fuel ' * 15 + '\n' + '#' * 10)
-            return
-
-        if len(self.X) and self.Z[0] < -6:
-            self.delete_fuel()
-
-
-class Heart:
-    def __init__(self):
-        self.X = []
-        self.Z = []
-
-    def generate_new_heart(self):
-        if state == '3':
-            rail = randrange(3)  # rail={0,1,2}
-            while (rail - 1) * 8 == obstacles.X[0] or (len(fuel.X) and (rail - 1) * 8 == fuel.X[0]):
-                rail = randrange(3)
-            self.X.append((rail - 1) * 8)
-        else:
-            rail = randrange(5)
-            while (rail - 2) * 8 == obstacles.X[0] or (len(fuel.X) and (rail - 1) * 8 == fuel.X[0]):
-                rail = randrange(5)
-            self.X.append((rail - 2) * 8)
-        self.Z.append(200)
-
-    def draw_old_heart(self):
-        global speed
-        glPushMatrix()
-        for i in range(len(self.X)):
-            glPushMatrix()
-            glColor3d(1, 1, 0)
-            glTranslate(self.X[i], 0, self.Z[i])
-            self.Z[i] -= speed
-            glScale(3, 2.5, 0)
-            self.draw_heart()
-            glBindTexture(GL_TEXTURE_2D, -1)
-            glPopMatrix()
-        glPopMatrix()
-
-    def delete_heart(self, ):
-        self.Z.pop(0)
-        self.X.pop(0)
-
-    def draw_heart(self):
-        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[3])
-
-        glBegin(GL_QUADS)
-        glTexCoord2f(0, 0)
-        glVertex(-.6, -.6)
-
-        glTexCoord2f(1, 0)
-        glVertex(.6, -0.6)
-
-        glTexCoord2f(1, 1)
-        glVertex(.8, .8)
-
-        glTexCoord2f(0, 1)
-        glVertex(-.8, .8)
-        glEnd()
-
-    def heart_collision_detection(self):
-        global X, life, state
-        if len(self.X) and self.Z[0] <= speed and abs(X - self.X[0]) <= 6:
-            if life < 3:
-                life += 1
-            self.delete_heart()
-            return
-        if len(self.X) and self.Z[0] < -6:
-            self.delete_heart()
-
-
 ########################################################################
 obstacles = Obstacle()
 fuel = Fuel()
 heart = Heart()
-
 X = 0
 speed = 2
 life = 3
@@ -319,6 +175,9 @@ fuel_level = 100
 TEXTURE_NAMES = [0, 1, 2, 3, 4, 5]
 MILLISECONDS = 15
 factory = {}
+heart.texture_name = TEXTURE_NAMES[3]
+
+fuel.texture_name =TEXTURE_NAMES[5]
 
 
 #########################################################################
@@ -369,12 +228,12 @@ def texture_setup(texture_image_binary, texture_name, width, height):
 #########################################################################
 def load_texture():
     glEnable(GL_TEXTURE_2D)
-    images = [pygame.image.load("background.jpg"),
-              pygame.image.load("GameOver.jpg"),
-              pygame.image.load("obstacle.jpeg"),
-              pygame.image.load("heart.png"),
-              pygame.image.load("Start.jpg"),
-              pygame.image.load("fuel.png")
+    images = [pygame.image.load("assets/background.jpg"),
+              pygame.image.load("assets/GameOver.jpg"),
+              pygame.image.load("assets/obstacle.jpeg"),
+              pygame.image.load("assets/heart.png"),
+              pygame.image.load("assets/Start.jpg"),
+              pygame.image.load("assets/fuel.png")
               ]
     textures = [pygame.image.tostring(image, "RGBA", True)
                 for image in images]
@@ -458,7 +317,7 @@ def draw_screen():
             glPopMatrix()
         glBindTexture(GL_TEXTURE_2D, -1)
 
-        state = fuel.fuel_level_bar(fuel_level)
+        state =fuel.fuel_level_bar(fuel_level,state)
 
     init_my_scene(1000, 900)
     glPopMatrix()
@@ -510,7 +369,7 @@ def draw_vehicle():
 
 
 #########################################################################
-def draw_text(string, x=0, y=0.0, size=5.0):
+def draw_text(string, x=0.0, y=0.0, size=5.0):
     glPushMatrix()
     projection_ortho()
     glLineWidth(2)
@@ -545,7 +404,7 @@ def switch():
 #########################################################################
 
 def game():
-    global generate, fuel_generate, fuel_level, speed, state, camera_coords  # variables
+    global generate, fuel_generate, fuel_level, speed, state, camera_coords, life  # variables
 
     draw_text("SCORE: " + str((generate // 100) * 100), -0.9, 0.7)
     if state == "5":
@@ -563,20 +422,18 @@ def game():
         obstacles.generate_new_obstacle()
         print(f"obstacles x {obstacles.X}")
 
-    if generate % 360 == 0:
-        heart.generate_new_heart()
+    if generate % 1440 == 0:
+        heart.generate_new_heart(num_of_rail=int(state), obstacles_x_axis=obstacles.X[-1], fuel_x_axis=fuel.fuel_x_axis)
 
-    if fuel_level <= 50 and not len(fuel.X):
-        fuel.generate_new_fuel()
-        print(f"fuel x {fuel.X}")
+    if fuel_level <= 50 and not len(fuel.fuel_x_axis):
+        fuel.generate_new_fuel(num_of_rail=int(state), obstacles_x_axis=obstacles.X[-1])
     obstacles.draw_old_obstacles()
-    heart.draw_old_heart()
-    fuel.draw_old_fuel()
-    # draw_text("Hello Word")
+    heart.draw_old_heart(speed)
+    fuel.draw_old_fuel(speed=speed)
     draw_vehicle()
     collision_detection()
-    fuel.fuel_collision_detection()
-    heart.heart_collision_detection()
+    fuel_level =  fuel.fuel_collision_detection(space_ship_position=X,fuel_level=fuel_level, speed=speed)
+    life = heart.heart_collision_detection(space_ship_position=X, num_of_heart=life, speed=speed, )
     if speed < 3:
         STEP = 3
     else:

@@ -1,0 +1,82 @@
+from random import randrange
+
+from OpenGL.GL import *
+from numpy import *
+
+
+class Fuel:
+    def __init__(self):
+        self.fuel_x_axis = []
+        self.fuel_z_axis = []
+        self.texture_name = -1
+
+    def generate_new_fuel(self, num_of_rail, obstacles_x_axis):
+        if num_of_rail == 3:
+            factor = 1
+        else:
+            factor = 2
+        rail = randrange(num_of_rail)  # rail={0,1,2}
+        while (rail - factor) * 8 == obstacles_x_axis:
+            rail = randrange(num_of_rail)
+        self.fuel_x_axis.append((rail - factor) * 8)
+        self.fuel_z_axis.append(200)
+
+    def draw_old_fuel(self, speed):
+        glPushMatrix()
+        for i in range(len(self.fuel_x_axis)):
+            glPushMatrix()
+            glColor3d(1, 1, 0)
+            glTranslate(self.fuel_x_axis[i], 0, self.fuel_z_axis[i])
+            self.fuel_z_axis[i] -= speed
+            glScale(2.5, 3, 0)
+            self.draw_fuel()
+            glBindTexture(GL_TEXTURE_2D, -1)
+            glPopMatrix()
+        glPopMatrix()
+
+    def delete_fuel(self, ):
+        self.fuel_z_axis.pop(0)
+        self.fuel_x_axis.pop(0)
+
+    def draw_fuel(self):
+        glBindTexture(GL_TEXTURE_2D, self.texture_name)
+        glBegin(GL_QUADS)
+        glTexCoord2f(0, 0)
+        glVertex(-1, -1)
+
+        glTexCoord2f(1, 0)
+        glVertex(1, -1)
+
+        glTexCoord2f(1, 1)
+        glVertex(1, 1)
+
+        glTexCoord2f(0, 1)
+        glVertex(-1, 1)
+        glEnd()
+
+    def fuel_level_bar(self, fuel_level=0.0, state=''):
+        if fuel_level <= 0.0:
+            return 'gameOver'
+        else:
+            glColor3d(1 - fuel_level / 100, fuel_level / 100, 0.0)
+            print('data')
+            print(fuel_level)
+            glLoadIdentity()
+            glBegin(GL_POLYGON)
+            glVertex2d(-0.9, 0.7 * fuel_level / 100)
+            glVertex2d(-0.92, 0.7 * fuel_level / 100)
+            glVertex2d(-0.92, 0)
+            glVertex2d(-0.9, 0)
+            glEnd()
+            return state
+
+    def fuel_collision_detection(self, space_ship_position, fuel_level, speed):
+        if len(self.fuel_x_axis) and self.fuel_z_axis[0] <= speed and abs(
+                space_ship_position - self.fuel_x_axis[0]) <= 6:
+            self.delete_fuel()
+            print('fuel ' * 15 + '\n' + '#' * 10)
+            fuel_level = 100.0
+        elif len(self.fuel_x_axis) and self.fuel_z_axis[0] < -6:
+            self.delete_fuel()
+
+        return fuel_level
