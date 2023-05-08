@@ -6,11 +6,11 @@ from numpy import *
 
 class Heart:
     def __init__(self):
-        self.heart_x_axis = []
-        self.heart_z_axis = []
+        self.heart_x = []
+        self.heart_z = []
         self.texture_name = -1
 
-    def generate_new_heart(self, num_of_rail, obstacles_x_axis, fuel_x_axis):
+    def generate_new_heart(self, num_of_rail, obstacles_x, fuel_x):
 
         if num_of_rail == 3:
             factor = 1
@@ -18,19 +18,19 @@ class Heart:
             factor = 2
 
         rail = randrange(num_of_rail)  # rail={0,1,2}
-        while (rail - factor) * 8 == obstacles_x_axis or (len(fuel_x_axis) and (rail - factor) * 8 == fuel_x_axis[0]):
+        while (rail - factor) * 8 == obstacles_x or (len(fuel_x) and (rail - factor) * 8 == fuel_x[0]):
             rail = randrange(num_of_rail)
-        self.heart_x_axis.append((rail - factor) * 8)
+        self.heart_x.append((rail - factor) * 8)
 
-        self.heart_z_axis.append(200)
+        self.heart_z.append(200)
 
     def draw_old_heart(self, speed):
         glPushMatrix()
-        for i in range(len(self.heart_x_axis)):
+        for i in range(len(self.heart_x)):
             glPushMatrix()
             glColor3d(1, 1, 0)
-            glTranslate(self.heart_x_axis[i], 0, self.heart_z_axis[i])
-            self.heart_z_axis[i] -= speed
+            glTranslate(self.heart_x[i], 0, self.heart_z[i])
+            self.heart_z[i] -= speed
             glScale(5, 5, 0)
             self.draw_heart()
             glBindTexture(GL_TEXTURE_2D, -1)
@@ -38,8 +38,8 @@ class Heart:
         glPopMatrix()
 
     def delete_heart(self):
-        self.heart_x_axis.pop(0)
-        self.heart_z_axis.pop(0)
+        self.heart_x.pop(0)
+        self.heart_z.pop(0)
 
     def draw_heart(self):
         glBindTexture(GL_TEXTURE_2D, self.texture_name)
@@ -57,13 +57,13 @@ class Heart:
         glVertex(-.8, .8)
         glEnd()
 
-    def heart_collision_detection(self, space_ship_position, num_of_heart, speed):
-        if len(self.heart_x_axis) and self.heart_z_axis[0] <= speed and abs(
-                space_ship_position - self.heart_x_axis[0]) <= 6:
+    def collision_detection(self, space_ship_position, num_of_heart, speed):
+        if len(self.heart_x) and self.heart_z[0] <= speed and abs(
+                space_ship_position - self.heart_x[0]) <= 6:
             if num_of_heart < 3:
                 num_of_heart += 1
             self.delete_heart()
             return num_of_heart
-        if len(self.heart_x_axis) and self.heart_z_axis[0] < -6:
+        if len(self.heart_x) and self.heart_z[0] < -6:
             self.delete_heart()
         return num_of_heart

@@ -1,70 +1,67 @@
-
-from math import *
 from random import randrange
+
 from OpenGL.GL import *
-from OpenGL.GLU import *
-from OpenGL.GLUT import *
-from numpy import *
+
+
 class Obstacle:
-    def __init__(self):
-        self.X = []
-        self.Z = []
-        self.PHASE = []
+    def __init__(self, texture_name=-1):
+        self.obstacle_x = []
+        self.obstacle_z = []
+        self.counter = 0
+        self.texture_name = texture_name
+        self.phase = []
 
-    def generate_new_obstacle(self):
-        global counter, speed
-        counter += 1
-        if counter % 5 == 0 and speed <= 4:
+    def generate_obstacle(self, num_of_rail, speed):
+        self.counter += 1
+        if self.counter == 5 and speed <= 4:
             speed += 3 / (7 * speed)
+            self.counter = 0
 
-            print(speed)
-        if state == '3':
-            rail = randrange(3)  # rail={0,1,2}
-            self.X.append((rail - 1) * 8)
+        if num_of_rail == 3:
+            factor = 1
         else:
-            rail1 = randrange(5)
-            self.X.append((rail1 - 2) * 8)
-            rail2 = randrange(5)
-            while rail1 == rail2:
-                rail2 = randrange(5)
+            factor = 2
 
-            self.X.append((rail2 - 2) * 8)
-            self.Z.append(200)
-            self.PHASE.append(randrange(360))
+        rail = randrange(num_of_rail)
+        # if state num of rail =3 then obstacle_x is  -8 or 0 or 8 
+        # if state num of rail =3 then obstacle_x is -16 or -8 or 0 or 8 or 16 
+        self.obstacle_x.append((rail - factor) * 8)
+        if num_of_rail == 5:
+            rail_2 = randrange(num_of_rail)
+            while rail_2 == rail:
+                rail_2 = randrange(num_of_rail)
+            self.obstacle_x.append((rail_2 - factor) * 8)
+            self.obstacle_z.append(200)
+            self.phase.append(randrange(360))
 
-        self.PHASE.append(randrange(360))
-        self.Z.append(200)
+        self.phase.append(randrange(360))
+        self.obstacle_z.append(200)
+        return speed
 
-    def draw_old_obstacles(self):
-        global speed
-
+    def draw_obstacles(self, speed):
         glPushMatrix()
-        for i in range(len(self.X)):
+        for i in range(len(self.obstacle_x)):
             glPushMatrix()
             glColor3d(1, 1, 0)
-
-            glTranslate(self.X[i], 0, self.Z[i])
-            glRotate(self.PHASE[i], 1, 0, 1)
-            self.Z[i] -= speed
+            glTranslate(self.obstacle_x[i], 0, self.obstacle_z[i])
+            glRotate(self.phase[i], 1, 0, 1)
+            self.obstacle_z[i] -= speed
             glScale(2.5, 2.5, 2.5)
-            obstacles.make_obstacle()
-
+            self.create_obstacle()
             glBindTexture(GL_TEXTURE_2D, -1)
-            # glutSolidCube(5)
-            self.PHASE[i] += 3
+            self.phase[i] += 3
             glPopMatrix()
-
         glPopMatrix()
 
     def delete_obstacle(self, n):
         for i in range(n):
-            self.Z.pop(0)
-            self.X.pop(0)
-            self.PHASE.pop(0)
+            self.obstacle_x.pop(0)
+            self.obstacle_z.pop(0)
+            self.phase.pop(0)
 
-    def make_obstacle(self):
+    def create_obstacle(self):
         # Front Face
-        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[2])
+        glBindTexture(GL_TEXTURE_2D, self.texture_name)
         glBegin(GL_QUADS)
         glTexCoord2f(0.0, 0.0)
         glVertex3f(-1.0, -1.0, 1.0)  # Bottom Left
@@ -80,7 +77,7 @@ class Obstacle:
         glEnd()
 
         # Back Face
-        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[2])
+        glBindTexture(GL_TEXTURE_2D, self.texture_name)
         glBegin(GL_QUADS)
         glTexCoord2f(0.0, 0.0)
         glVertex3f(-1.0, -1.0, -1.0)  # Bottom Right
@@ -93,7 +90,7 @@ class Obstacle:
         glEnd()
 
         # Top Face
-        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[2])
+        glBindTexture(GL_TEXTURE_2D, self.texture_name)
         glBegin(GL_QUADS)
         glTexCoord2f(0.0, 0.0)
         glVertex3f(-1.0, 1.0, -1.0)  # Top Left
@@ -106,7 +103,7 @@ class Obstacle:
         glEnd()
 
         # Bottom Face
-        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[2])
+        glBindTexture(GL_TEXTURE_2D, self.texture_name)
         glBegin(GL_QUADS)
         glTexCoord2f(0.0, 0.0)
         glVertex3f(-1.0, -1.0, -1.0)  # Top Right
@@ -119,7 +116,7 @@ class Obstacle:
         glEnd()
 
         # Right face
-        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[2])
+        glBindTexture(GL_TEXTURE_2D, self.texture_name)
         glBegin(GL_QUADS)
         glTexCoord2f(0.0, 0.0)
         glVertex3f(1.0, -1.0, -1.0)  # Bottom Right
@@ -132,7 +129,7 @@ class Obstacle:
         glEnd()
 
         # Left Face
-        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[2])
+        glBindTexture(GL_TEXTURE_2D, self.texture_name)
         glBegin(GL_QUADS)
         glTexCoord2f(0.0, 0.0)
         glVertex3f(-1.0, -1.0, -1.0)  # Bottom Left
@@ -143,3 +140,28 @@ class Obstacle:
         glTexCoord2f(0.0, 1.0)
         glVertex3f(-1.0, 1.0, -1.0)  # Top Left
         glEnd()
+
+    def collision_detection(self, space_ship_position, num_of_heart, speed, state):
+
+        if len(self.obstacle_x) and state == '3' and self.obstacle_z[0] <= speed and abs(
+                space_ship_position - self.obstacle_x[0]) <= 6:
+            num_of_heart -= 1
+            self.delete_obstacle(1)
+            print('crash ' * 5 + '\n' + '#' * 50)
+
+        elif len(self.obstacle_x) > 1 and state == '5':
+            if self.obstacle_z[0] <= speed and abs(space_ship_position - self.obstacle_x[0]) <= 6 or self.obstacle_z[
+                1] <= speed and abs(
+                space_ship_position - self.obstacle_x[1]) <= 6:
+                num_of_heart -= 1
+                if self.obstacle_z[0] == self.obstacle_z[1]:
+                    self.delete_obstacle(1)
+                self.delete_obstacle(1)
+                print('crash ' * 15 + '\n' + '#' * 50)
+
+        if len(self.obstacle_x) and self.obstacle_z[0] < -6:
+            if state == "5" and self.obstacle_z[1] < -6:
+                self.delete_obstacle(2)
+            else:
+                self.delete_obstacle(1)
+        return num_of_heart

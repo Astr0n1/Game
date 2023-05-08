@@ -1,5 +1,4 @@
 from math import *
-from random import randrange
 
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
@@ -8,157 +7,8 @@ from numpy import *
 from component.fuel import Fuel
 from component.heart import Heart
 from component.objloader import *
+from component.obstacle import Obstacle
 
-
-#########################################################################
-
-# التاسك بتاعنا عبارة عن powerup الي هو الطيارة تاخد بنزين في الطريق و كمان تاخد قلوب
-# البار الي بيعبر عن مستوي البنزين هيكون لوتة بيتغير علي حسب الكمية من الاخضر للاحمر
-
-
-class Obstacle:
-    def __init__(self):
-        self.X = []
-        self.Z = []
-        self.PHASE = []
-
-    def generate_new_obstacle(self):
-        global counter, speed
-        counter += 1
-        if counter % 5 == 0 and speed <= 4:
-            speed += 3 / (7 * speed)
-
-            print(speed)
-        if state == '3':
-            rail = randrange(3)  # rail={0,1,2}
-            self.X.append((rail - 1) * 8)
-        else:
-            rail1 = randrange(5)
-            self.X.append((rail1 - 2) * 8)
-            rail2 = randrange(5)
-            while rail1 == rail2:
-                rail2 = randrange(5)
-
-            self.X.append((rail2 - 2) * 8)
-            self.Z.append(200)
-            self.PHASE.append(randrange(360))
-
-        self.PHASE.append(randrange(360))
-        self.Z.append(200)
-
-    def draw_old_obstacles(self):
-        global speed
-        glPushMatrix()
-        for i in range(len(self.X)):
-            glPushMatrix()
-            glColor3d(1, 1, 0)
-
-            glTranslate(self.X[i], 0, self.Z[i])
-            glRotate(self.PHASE[i], 1, 0, 1)
-            self.Z[i] -= speed
-            glScale(2.5, 2.5, 2.5)
-            obstacles.make_obstacle()
-
-            glBindTexture(GL_TEXTURE_2D, -1)
-            # glutSolidCube(5)
-            self.PHASE[i] += 3
-            glPopMatrix()
-
-        glPopMatrix()
-
-    def delete_obstacle(self, n):
-        for i in range(n):
-            self.Z.pop(0)
-            self.X.pop(0)
-            self.PHASE.pop(0)
-
-    def make_obstacle(self):
-        # Front Face
-        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[2])
-        glBegin(GL_QUADS)
-        glTexCoord2f(0.0, 0.0)
-        glVertex3f(-1.0, -1.0, 1.0)  # Bottom Left
-
-        glTexCoord2f(1.0, 0.0)
-        glVertex3f(1.0, -1.0, 1.0)  # Bottom Right
-
-        glTexCoord2f(1.0, 1.0)
-        glVertex3f(1.0, 1.0, 1.0)  # Top Right
-
-        glTexCoord2f(0.0, 1.0)
-        glVertex3f(-1.0, 1.0, 1.0)  # Top Left
-        glEnd()
-
-        # Back Face
-        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[2])
-        glBegin(GL_QUADS)
-        glTexCoord2f(0.0, 0.0)
-        glVertex3f(-1.0, -1.0, -1.0)  # Bottom Right
-        glTexCoord2f(1.0, 0.0)
-        glVertex3f(-1.0, 1.0, -1.0)  # Top Right
-        glTexCoord2f(1.0, 1.0)
-        glVertex3f(1.0, 1.0, -1.0)  # Top Left
-        glTexCoord2f(0.0, 1.0)
-        glVertex3f(1.0, -1.0, -1.0)  # Bottom Left
-        glEnd()
-
-        # Top Face
-        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[2])
-        glBegin(GL_QUADS)
-        glTexCoord2f(0.0, 0.0)
-        glVertex3f(-1.0, 1.0, -1.0)  # Top Left
-        glTexCoord2f(1.0, 0.0)
-        glVertex3f(-1.0, 1.0, 1.0)  # Bottom Left
-        glTexCoord2f(1.0, 1.0)
-        glVertex3f(1.0, 1.0, 1.0)  # Bottom Right
-        glTexCoord2f(0.0, 1.0)
-        glVertex3f(1.0, 1.0, -1.0)  # Top Right
-        glEnd()
-
-        # Bottom Face
-        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[2])
-        glBegin(GL_QUADS)
-        glTexCoord2f(0.0, 0.0)
-        glVertex3f(-1.0, -1.0, -1.0)  # Top Right
-        glTexCoord2f(1.0, 0.0)
-        glVertex3f(1.0, -1.0, -1.0)  # Top Left
-        glTexCoord2f(1.0, 1.0)
-        glVertex3f(1.0, -1.0, 1.0)  # Bottom Left
-        glTexCoord2f(0.0, 1.0)
-        glVertex3f(-1.0, -1.0, 1.0)  # Bottom Right
-        glEnd()
-
-        # Right face
-        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[2])
-        glBegin(GL_QUADS)
-        glTexCoord2f(0.0, 0.0)
-        glVertex3f(1.0, -1.0, -1.0)  # Bottom Right
-        glTexCoord2f(1.0, 0.0)
-        glVertex3f(1.0, 1.0, -1.0)  # Top Right
-        glTexCoord2f(1.0, 1.0)
-        glVertex3f(1.0, 1.0, 1.0)  # Top Left
-        glTexCoord2f(0.0, 1.0)
-        glVertex3f(1.0, -1.0, 1.0)  # Bottom Left
-        glEnd()
-
-        # Left Face
-        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[2])
-        glBegin(GL_QUADS)
-        glTexCoord2f(0.0, 0.0)
-        glVertex3f(-1.0, -1.0, -1.0)  # Bottom Left
-        glTexCoord2f(1.0, 0.0)
-        glVertex3f(-1.0, -1.0, 1.0)  # Bottom Right
-        glTexCoord2f(1.0, 1.0)
-        glVertex3f(-1.0, 1.0, 1.0)  # Top Right
-        glTexCoord2f(0.0, 1.0)
-        glVertex3f(-1.0, 1.0, -1.0)  # Top Left
-        glEnd()
-
-
-########################################################################
-obstacles = Obstacle()
-fuel = Fuel()
-heart = Heart()
 X = 0
 speed = 2
 life = 3
@@ -175,9 +25,12 @@ fuel_level = 100
 TEXTURE_NAMES = [0, 1, 2, 3, 4, 5]
 MILLISECONDS = 15
 factory = {}
-heart.texture_name = TEXTURE_NAMES[3]
 
-fuel.texture_name =TEXTURE_NAMES[5]
+obstacles = Obstacle(texture_name=TEXTURE_NAMES[2])
+fuel = Fuel()
+heart = Heart()
+heart.texture_name = TEXTURE_NAMES[3]
+fuel.texture_name = TEXTURE_NAMES[5]
 
 
 #########################################################################
@@ -228,12 +81,12 @@ def texture_setup(texture_image_binary, texture_name, width, height):
 #########################################################################
 def load_texture():
     glEnable(GL_TEXTURE_2D)
-    images = [pygame.image.load("assets/background.jpg"),
-              pygame.image.load("assets/GameOver.jpg"),
-              pygame.image.load("assets/obstacle.jpeg"),
-              pygame.image.load("assets/heart.png"),
-              pygame.image.load("assets/Start.jpg"),
-              pygame.image.load("assets/fuel.png")
+    images = [pygame.image.load("assets/images/background.jpg"),
+              pygame.image.load("assets/images/GameOver.jpg"),
+              pygame.image.load("assets/images/obstacle.jpeg"),
+              pygame.image.load("assets/images/heart.png"),
+              pygame.image.load("assets/images/Start.jpg"),
+              pygame.image.load("assets/images/fuel.png")
               ]
     textures = [pygame.image.tostring(image, "RGBA", True)
                 for image in images]
@@ -317,7 +170,7 @@ def draw_screen():
             glPopMatrix()
         glBindTexture(GL_TEXTURE_2D, -1)
 
-        state =fuel.fuel_level_bar(fuel_level,state)
+        state = fuel.fuel_level_bar(fuel_level, state)
 
     init_my_scene(1000, 900)
     glPopMatrix()
@@ -395,7 +248,6 @@ def switch():
         state = "gameOver"
 
     if (state == "3" or state == "5") and pause == False:
-        # print("game")
         game()
     if not pause:
         glutSwapBuffers()
@@ -407,6 +259,7 @@ def game():
     global generate, fuel_generate, fuel_level, speed, state, camera_coords, life  # variables
 
     draw_text("SCORE: " + str((generate // 100) * 100), -0.9, 0.7)
+
     if state == "5":
         if camera_coords['y_c'] < 50:
             camera_coords['y_c'] += 0.5
@@ -419,21 +272,20 @@ def game():
               0, 1, 0)
 
     if generate % 120 == 0:
-        obstacles.generate_new_obstacle()
-        print(f"obstacles x {obstacles.X}")
+        speed = obstacles.generate_obstacle(num_of_rail=int(state), speed=speed)
 
     if generate % 1440 == 0:
-        heart.generate_new_heart(num_of_rail=int(state), obstacles_x_axis=obstacles.X[-1], fuel_x_axis=fuel.fuel_x_axis)
+        heart.generate_new_heart(num_of_rail=int(state), obstacles_x=obstacles.obstacle_x[-1], fuel_x=fuel.fuel_x)
 
-    if fuel_level <= 50 and not len(fuel.fuel_x_axis):
-        fuel.generate_new_fuel(num_of_rail=int(state), obstacles_x_axis=obstacles.X[-1])
-    obstacles.draw_old_obstacles()
+    if fuel_level <= 50 and not len(fuel.fuel_x):
+        fuel.generate_new_fuel(num_of_rail=int(state), obstacles_x=obstacles.obstacle_x[-1])
+    obstacles.draw_obstacles(speed=speed)
     heart.draw_old_heart(speed)
     fuel.draw_old_fuel(speed=speed)
     draw_vehicle()
-    collision_detection()
-    fuel_level =  fuel.fuel_collision_detection(space_ship_position=X,fuel_level=fuel_level, speed=speed)
-    life = heart.heart_collision_detection(space_ship_position=X, num_of_heart=life, speed=speed, )
+    life = obstacles.collision_detection(space_ship_position=X,num_of_heart=life,speed=speed ,state=state)
+    fuel_level = fuel.collision_detection(space_ship_position=X, fuel_level=fuel_level, speed=speed)
+    life = heart.collision_detection(space_ship_position=X, num_of_heart=life, speed=speed, )
     if speed < 3:
         STEP = 3
     else:
@@ -472,33 +324,6 @@ def mouse_callback(x, y):
         X = 16
     elif X < -16 and state == '5':
         X = -16
-
-
-#########################################################################
-def collision_detection():
-    global X, obstacles, life, state
-    if len(obstacles.X) and state == '3' and obstacles.Z[0] <= speed and abs(X - obstacles.X[0]) <= 6:
-        life -= 1
-        obstacles.delete_obstacle(1)
-        print('crash ' * 15 + '\n' + '#' * 50)
-        return
-
-    elif len(obstacles.X) > 1 and state == '5':
-        if obstacles.Z[0] <= speed and abs(X - obstacles.X[0]) <= 6 or obstacles.Z[1] <= speed and abs(
-                X - obstacles.X[1]) <= 6:
-
-            life -= 1
-            if obstacles.Z[0] == obstacles.Z[1]:
-                obstacles.delete_obstacle(1)
-            obstacles.delete_obstacle(1)
-            print('crash ' * 15 + '\n' + '#' * 50)
-            return
-
-    if len(obstacles.X) and obstacles.Z[0] < -6:
-        if state == "5" and obstacles.Z[1] < -6:
-            obstacles.delete_obstacle(2)
-        else:
-            obstacles.delete_obstacle(1)
 
 
 #########################################################################
