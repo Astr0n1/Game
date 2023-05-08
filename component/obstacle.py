@@ -175,8 +175,8 @@ class Obstacle:
 
     def sound_crash(self, num_of_heart):
         if num_of_heart != 0:
-            crash_sound = pygame.mixer.Sound("assets/sound/crash.wav")
+            crash_sound = pygame.mixer.Sound("assets/sound/collision.wav")
             crash_sound.play()
         else:
-            gameover_sound = pygame.mixer.Sound("assets/sound/gameover.mp3")
-            gameover_sound.play()
+            gameOver_sound = pygame.mixer.Sound("assets/sound/gameOver.mp3")
+            gameOver_sound.play()

@@ -1,5 +1,3 @@
-from math import *
-
 import glfw
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
@@ -11,7 +9,7 @@ from component.objloader import *
 from component.obstacle import Obstacle
 
 spaceship_position = 0
-flash=0
+flash = 0
 speed = 3
 num_of_heart = 3
 state = "start"
@@ -52,7 +50,7 @@ obstacles = Obstacle(texture_name=TEXTURE_NAMES['obstacle'])
 fuel = Fuel(texture_name=TEXTURE_NAMES['fuel'])
 heart = Heart(texture_name=TEXTURE_NAMES['heart'])
 
-
+background_sound = pygame.mixer.Sound("assets/sound/gameplay.mp3")
 #########################################################################
 def getModel(path):
     if path not in factory:
@@ -90,6 +88,8 @@ def load_texture():
                       i,
                       images[i].get_width(),
                       images[i].get_height())
+
+
 #########################################################################
 def texture_setup(texture_image_binary, texture_name, width, height):
     glBindTexture(GL_TEXTURE_2D, texture_name)
@@ -108,6 +108,7 @@ def texture_setup(texture_image_binary, texture_name, width, height):
                  texture_image_binary)
     glBindTexture(GL_TEXTURE_2D, -1)
 
+
 #########################################################################
 def init_my_scene(width, height):
     lighting()
@@ -115,6 +116,7 @@ def init_my_scene(width, height):
     glLoadIdentity()
     gluPerspective(45, float(width) / float(height), 20, 300.0)
     glMatrixMode(GL_MODELVIEW)
+
 
 #########################################################################
 def background_draw():
@@ -150,13 +152,13 @@ def draw_screen():
     background_draw()
 
     projection_ortho()
-    glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES['heart'])
-
     if state == "3" or state == "5":
         for i in range(num_of_heart):
             glPushMatrix()
+            glTranslate(-0.85, 0.85, 0)
             glTranslate(i * .15, 0, 0)
-            heart_draw()
+            glScale(0.08, 0.08, 0)
+            heart.heart_draw()
             glPopMatrix()
         glBindTexture(GL_TEXTURE_2D, -1)
 
@@ -167,10 +169,13 @@ def draw_screen():
 
 
 #########################################################################
+
+#########################################################################
+
 def lighting():
     LightPos = [0, 10, 5, 1]
     LightAmb = [0, 0, 0, 0]
-    LightDiff = [0.3,0.3,0.3,1]
+    LightDiff = [0.3, 0.3, 0.3, 1]
     LightSpec = [0.03, 0.03, 0.04, 1.0]
 
     MatAmbF = [1, 1, 1, 1]
@@ -190,20 +195,6 @@ def lighting():
     glMaterialfv(GL_FRONT, GL_SPECULAR, MatSpecF)
     glMaterialfv(GL_FRONT, GL_SHININESS, MatShnF)
 
-def heart_draw():
-    glBegin(GL_QUADS)
-    glTexCoord2f(0, 1)
-    glVertex(-.9, .9)
-
-    glTexCoord2f(0, 0)
-    glVertex(-.9, .8)
-
-    glTexCoord2f(1, 0)
-    glVertex(-.8, .8)
-
-    glTexCoord2f(1, 1)
-    glVertex(-.8, .9)
-    glEnd()
 
 #########################################################################
 def draw_vehicle():
@@ -239,7 +230,10 @@ def draw_text(string, x=0.0, y=0.0, size=5.0):
     init_my_scene(1000, 900)
     glPopMatrix()
 
-
+# def draw_fire():
+#     glBegin(GL_QUADS)
+#     gluSphere(0.2,10,10)
+#     glEnd()
 #########################################################################
 def switch():
     global state
@@ -250,6 +244,7 @@ def switch():
 
     if not num_of_heart:
         state = "gameOver"
+        background_sound.stop()
     if pause:
         draw_text("press R to continue ", -.3, 0, 6)
         glutSwapBuffers()
@@ -277,7 +272,7 @@ def camera_setup():
 
 
 def game():
-    global generate, fuel_generate, fuel_level, speed, state, camera_coordinates, num_of_heart ,flash  # variables
+    global generate, fuel_generate, fuel_level, speed, state, camera_coordinates, num_of_heart, flash  # variables
 
     camera_setup()
 
@@ -288,13 +283,15 @@ def game():
     if generate % 120 == 0:
         speed = obstacles.generate_obstacle(num_of_rail=int(state), speed=speed)
     obstacles.draw_obstacles(speed=speed)
-    num_of_heart , flash = obstacles.collision_detection(space_ship_position=spaceship_position, num_of_heart=num_of_heart, speed=speed,
-                                                 state=state,flash=flash)
+    num_of_heart, flash = obstacles.collision_detection(space_ship_position=spaceship_position,
+                                                        num_of_heart=num_of_heart, speed=speed,
+                                                        state=state, flash=flash)
 
     if generate % 1440 == 0:
         heart.generate_new_heart(num_of_rail=int(state), obstacles_x=obstacles.obstacle_x[-1], fuel_x=fuel.fuel_x)
     heart.draw_old_heart(speed)
-    num_of_heart = heart.collision_detection(space_ship_position=spaceship_position, num_of_heart=num_of_heart, speed=speed, )
+    num_of_heart = heart.collision_detection(space_ship_position=spaceship_position, num_of_heart=num_of_heart,
+                                             speed=speed, )
 
     if 50 >= fuel_level >= 20 and not len(fuel.fuel_x):
         fuel.generate_new_fuel(num_of_rail=int(state), obstacles_x=obstacles.obstacle_x[-1])
@@ -302,10 +299,9 @@ def game():
     fuel_level = fuel.collision_detection(space_ship_position=spaceship_position, fuel_level=fuel_level, speed=speed)
 
     if flash:
-        flash-=1
-    if flash % 15==0 :
+        flash -= 1
+    if flash % 15 == 0:
         draw_vehicle()
-
 
     if speed < 3:
         STEP = 3
@@ -360,7 +356,7 @@ def main():
     glfw.init()
     monitor = glfw.get_primary_monitor()
     mode = glfw.get_video_mode(monitor)
-    background_sound = pygame.mixer.Sound("assets/sound/gameplay.mp3")
+
     background_sound.play(-1)
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
     glutInitWindowSize(mode.size.width, mode.size.height)
