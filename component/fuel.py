@@ -5,10 +5,10 @@ from numpy import *
 
 
 class Fuel:
-    def __init__(self):
+    def __init__(self,texture_name=-1):
         self.fuel_x = []
         self.fuel_z = []
-        self.texture_name = -1
+        self.texture_name = texture_name
 
     def generate_new_fuel(self, num_of_rail, obstacles_x):
         if num_of_rail == 3:
@@ -61,10 +61,10 @@ class Fuel:
             glColor3d(1, fuel_level / 100, 0.0)
             glLoadIdentity()
             glBegin(GL_POLYGON)
-            glVertex2d(-0.9, 0.6)
-            glVertex2d(-0.35 *fuel_level/100, 0.6)
-            glVertex2d(-0.35 *fuel_level/100, 0.56)
-            glVertex2d(-0.9, 0.56)
+            glVertex2d(-0.9, 0.55)
+            glVertex2d(-0.9+(0.55 * fuel_level / 100), 0.55)
+            glVertex2d(-0.9+(0.55 * fuel_level / 100), 0.50)
+            glVertex2d(-0.9, 0.50)
             glEnd()
             return state
 

@@ -1,5 +1,5 @@
 from random import randrange
-
+import pygame
 from OpenGL.GL import *
 
 
@@ -146,14 +146,15 @@ class Obstacle:
         if len(self.obstacle_x) and state == '3' and self.obstacle_z[0] <= speed and abs(
                 space_ship_position - self.obstacle_x[0]) <= 6:
             num_of_heart -= 1
+            self.sound_crash(num_of_heart)
             self.delete_obstacle(1)
             print('crash ' * 5 + '\n' + '#' * 50)
 
         elif len(self.obstacle_x) > 1 and state == '5':
-            if self.obstacle_z[0] <= speed and abs(space_ship_position - self.obstacle_x[0]) <= 6 or self.obstacle_z[
-                1] <= speed and abs(
-                space_ship_position - self.obstacle_x[1]) <= 6:
+            if self.obstacle_z[0] <= speed and abs(space_ship_position - self.obstacle_x[0]) <= 6 or self.obstacle_z[1] <= speed \
+                    and abs(space_ship_position - self.obstacle_x[1]) <= 6:
                 num_of_heart -= 1
+                self.sound_crash(num_of_heart)
                 if self.obstacle_z[0] == self.obstacle_z[1]:
                     self.delete_obstacle(1)
                 self.delete_obstacle(1)
@@ -165,3 +166,11 @@ class Obstacle:
             else:
                 self.delete_obstacle(1)
         return num_of_heart
+
+    def sound_crash(self, life):
+        if life != 0:
+            crash_sound = pygame.mixer.Sound("assets/sound/crash.wav")
+            crash_sound.play()
+        else:
+            gameover_sound = pygame.mixer.Sound("assets/sound/gameover.mp3")
+            gameover_sound.play()

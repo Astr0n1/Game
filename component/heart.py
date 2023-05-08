@@ -5,10 +5,10 @@ from numpy import *
 
 
 class Heart:
-    def __init__(self):
+    def __init__(self,texture_name=-1):
         self.heart_x = []
         self.heart_z = []
-        self.texture_name = -1
+        self.texture_name = texture_name
 
     def generate_new_heart(self, num_of_rail, obstacles_x, fuel_x):
 
@@ -31,7 +31,7 @@ class Heart:
             glColor3d(1, 1, 0)
             glTranslate(self.heart_x[i], 0, self.heart_z[i])
             self.heart_z[i] -= speed
-            glScale(5, 5, 0)
+            glScale(3, 2.5, 0)
             self.draw_heart()
             glBindTexture(GL_TEXTURE_2D, -1)
             glPopMatrix()

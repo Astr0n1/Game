@@ -10,27 +10,47 @@ from component.objloader import *
 from component.obstacle import Obstacle
 
 X = 0
-speed = 2
+speed = 3
 life = 3
 state = "start"
 pause = False
-camera_coords = {'x_c': 0, 'y_c': 25, 'z_c': -25,
-                 'x_l': 0, 'y_l': 11, 'z_l': 0}
+camera_coordinates = {
+    'x-eye': 0,
+    'y-eye': 25,
+    'z-eye': -25,
+    'x_center': 0,
+    'y_center': 11,
+    'z_center': 0
+}
 FONT_DOWNSCALE = 0.13
 counter = 0
 generate = 0
 
 fuel_generate = 0
 fuel_level = 100
-TEXTURE_NAMES = [0, 1, 2, 3, 4, 5]
+textureList = [0, 1, 2, 3, 4, 5]
+TEXTURE_NAMES = {
+    'Start': 0,
+    'background': 1,
+    'obstacle': 2,
+    'heart': 3,
+    'fuel': 4,
+    'gameOver': 5
+}
+IMAGE_NAME = {
+    0: 'Start.jpg',
+    1: 'background.jpg',
+    2: 'obstacle.jpeg',
+    3: 'heart.png',
+    4: 'fuel.png',
+    5: 'gameOver.jpg'
+}
 MILLISECONDS = 15
 factory = {}
 
-obstacles = Obstacle(texture_name=TEXTURE_NAMES[2])
-fuel = Fuel()
-heart = Heart()
-heart.texture_name = TEXTURE_NAMES[3]
-fuel.texture_name = TEXTURE_NAMES[5]
+obstacles = Obstacle(texture_name=TEXTURE_NAMES['obstacle'])
+fuel = Fuel(texture_name=TEXTURE_NAMES['fuel'])
+heart = Heart(texture_name=TEXTURE_NAMES['heart'])
 
 
 #########################################################################
@@ -81,21 +101,14 @@ def texture_setup(texture_image_binary, texture_name, width, height):
 #########################################################################
 def load_texture():
     glEnable(GL_TEXTURE_2D)
-    images = [pygame.image.load("assets/images/background.jpg"),
-              pygame.image.load("assets/images/GameOver.jpg"),
-              pygame.image.load("assets/images/obstacle.jpeg"),
-              pygame.image.load("assets/images/heart.png"),
-              pygame.image.load("assets/images/Start.jpg"),
-              pygame.image.load("assets/images/fuel.png")
-              ]
-    textures = [pygame.image.tostring(image, "RGBA", True)
-                for image in images]
+    images = [pygame.image.load(f"assets/images/{IMAGE_NAME[i]}") for i in range(len(IMAGE_NAME))]
+    textures = [pygame.image.tostring(image, "RGBA", True) for image in images]
 
-    glGenTextures(len(images), TEXTURE_NAMES)
+    glGenTextures(len(images), textureList)
 
     for i in range(len(images)):
         texture_setup(textures[i],
-                      TEXTURE_NAMES[i],
+                      i,
                       images[i].get_width(),
                       images[i].get_height())
 
@@ -152,15 +165,15 @@ def draw_screen():
     projection_ortho(-220)
 
     if state == "start":
-        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[4])
+        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES['Start'])
     elif state == "gameOver":
-        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[1])
+        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES['gameOver'])
     else:
-        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[0])
+        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES['background'])
     background_draw()
 
     projection_ortho()
-    glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES[3])
+    glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES['heart'])
 
     if state == "3" or state == "5":
         for i in range(life):
@@ -219,7 +232,13 @@ def draw_vehicle():
     glPopMatrix()
     glDisable(GL_LIGHTING)
     glDisable(GL_LIGHT0)
-
+def sound_crash(life):
+    if life != 0:
+        crash_sound = pygame.mixer.Sound("crash.wav")
+        crash_sound.play()
+    else:
+        gameover_sound = pygame.mixer.Sound("gameover.mp3")
+        gameover_sound.play()
 
 #########################################################################
 def draw_text(string, x=0.0, y=0.0, size=5.0):
@@ -246,7 +265,9 @@ def switch():
 
     if not life:
         state = "gameOver"
-
+    if pause:
+        draw_text("press R to continue ", -.3, 0, 6)
+        glutSwapBuffers()
     if (state == "3" or state == "5") and pause == False:
         game()
     if not pause:
@@ -254,38 +275,47 @@ def switch():
 
 
 #########################################################################
+def camera_setup():
+    global camera_coordinates
+    if state == 'intro':
+        pass
+    if state == "5":
+        if camera_coordinates['y-eye'] < 50:
+            camera_coordinates['y-eye'] += 0.5
+            camera_coordinates['z-eye'] -= 0.5
+            camera_coordinates['y_center'] -= 3 / 50
+            camera_coordinates['z_center'] += 0.7
+
+    gluLookAt(camera_coordinates['x-eye'], camera_coordinates['y-eye'], camera_coordinates['z-eye'],
+              camera_coordinates['x_center'], camera_coordinates['y_center'], camera_coordinates['z_center'],
+              0, 1, 0)
+
 
 def game():
-    global generate, fuel_generate, fuel_level, speed, state, camera_coords, life  # variables
+    global generate, fuel_generate, fuel_level, speed, state, camera_coordinates, life  # variables
 
-    draw_text("SCORE: " + str((generate // 100) * 100), -0.9, 0.7)
+    camera_setup()
 
-    if state == "5":
-        if camera_coords['y_c'] < 50:
-            camera_coords['y_c'] += 0.5
-            camera_coords['z_c'] -= 0.5
-            camera_coords['y_l'] -= 3 / 50
-            camera_coords['z_l'] += 0.7
-
-    gluLookAt(camera_coords['x_c'], camera_coords['y_c'], camera_coords['z_c'],
-              camera_coords['x_l'], camera_coords['y_l'], camera_coords['z_l'],
-              0, 1, 0)
+    score = (generate // 100) * 100
+    draw_text(f"SCORE: {score}", -.9, .7)
+    draw_text("press P to pause ", -.9, .6, 4)
 
     if generate % 120 == 0:
         speed = obstacles.generate_obstacle(num_of_rail=int(state), speed=speed)
+    obstacles.draw_obstacles(speed=speed)
+    life = obstacles.collision_detection(space_ship_position=X, num_of_heart=life, speed=speed, state=state)
 
     if generate % 1440 == 0:
         heart.generate_new_heart(num_of_rail=int(state), obstacles_x=obstacles.obstacle_x[-1], fuel_x=fuel.fuel_x)
-
-    if fuel_level <= 50 and not len(fuel.fuel_x):
-        fuel.generate_new_fuel(num_of_rail=int(state), obstacles_x=obstacles.obstacle_x[-1])
-    obstacles.draw_obstacles(speed=speed)
     heart.draw_old_heart(speed)
-    fuel.draw_old_fuel(speed=speed)
-    draw_vehicle()
-    life = obstacles.collision_detection(space_ship_position=X,num_of_heart=life,speed=speed ,state=state)
-    fuel_level = fuel.collision_detection(space_ship_position=X, fuel_level=fuel_level, speed=speed)
     life = heart.collision_detection(space_ship_position=X, num_of_heart=life, speed=speed, )
+
+    if 50 >= fuel_level >= 20 and not len(fuel.fuel_x):
+        fuel.generate_new_fuel(num_of_rail=int(state), obstacles_x=obstacles.obstacle_x[-1])
+    fuel.draw_old_fuel(speed=speed)
+    fuel_level = fuel.collision_detection(space_ship_position=X, fuel_level=fuel_level, speed=speed)
+
+    draw_vehicle()
     if speed < 3:
         STEP = 3
     else:
@@ -306,10 +336,10 @@ def keyboard_callback(key, x, y):
         state = "3"
     if key == b'p':
         print("pause")
-        if pause == True:
-            pause = False
-        else:
-            pause = True
+        pause = True
+    if key == b'r':
+        print("resume")
+        pause = False
 
 
 def mouse_callback(x, y):
@@ -333,7 +363,11 @@ def anim_timer(v):
 
 
 def main():
+    global background_sound
     glutInit(sys.argv)
+    pygame.init()
+    background_sound = pygame.mixer.Sound("assets/sound/gameplay.mp3")
+    background_sound.play(-1)
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
     glutInitWindowSize(1000, 900)
     glutInitWindowPosition(400, 0)
