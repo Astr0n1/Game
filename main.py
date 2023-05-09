@@ -49,7 +49,7 @@ obstacles = Obstacle(texture_name=TEXTURE_NAMES['obstacle'])
 fuel = Fuel(texture_name=TEXTURE_NAMES['fuel'])
 heart = Heart(texture_name=TEXTURE_NAMES['heart'])
 
-background_sound = pygame.mixer.Sound("assets/sound/the-k9-background-music-By-tuna.voicemod.net.mp3")
+background_sound = pygame.mixer.Sound("assets/sound/gameStart.mp3")
 
 
 #########################################################################
@@ -149,6 +149,7 @@ def draw_screen():
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES['Start'])
     elif state == "gameOver":
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES['gameOver'])
+        background_sound.stop()
     else:
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES['background'])
     background_draw()
@@ -263,7 +264,6 @@ def switch():
 
     if not num_of_heart:
         state = "gameOver"
-        background_sound.stop()
     if pause:
         draw_text("press R to continue ", -.3, 0, 6)
         glutSwapBuffers()
@@ -399,7 +399,7 @@ def keyboard_callback(key, x, y):
         print(state)
         background_sound.stop()
         background_sound = pygame.mixer.Sound(
-            "assets/sound/Your Story Interactive - Love From Outer Space - Figting Game.mp3")
+            "assets/sound/gamePlay.mp3")
         background_sound.play(-1)
 
     if key == b'p':
