@@ -1,4 +1,3 @@
-import glfw
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from numpy import *
@@ -246,10 +245,7 @@ def draw_text(string, x=0.0, y=0.0, size=5.0):
     init_my_scene(1000, 900)
     glPopMatrix()
 
-# def draw_fire():
-#     glBegin(GL_QUADS)
-#     gluSphere(0.2,10,10)
-#     glEnd()
+
 #########################################################################
 def switch():
     global state
@@ -303,7 +299,7 @@ def game():
                                                         num_of_heart=num_of_heart, speed=speed,
                                                         state=state, flash=flash)
 
-    if generate % 1440 == 0:
+    if generate %  1920 == 0:
         heart.generate_new_heart(num_of_rail=int(state), obstacles_x=obstacles.obstacle_x[-1], fuel_x=fuel.fuel_x)
     heart.draw_old_heart(speed)
     num_of_heart = heart.collision_detection(space_ship_position=spaceship_position, num_of_heart=num_of_heart,
@@ -347,7 +343,7 @@ def keyboard_callback(key, x, y):
 
 def mouse_callback(x, y):
     global spaceship_position, state
-    spaceship_position = (-x + 500) / 30
+    spaceship_position = (-x + 750) / 45
     if spaceship_position > 8 and state == '3':
         spaceship_position = 8
     elif spaceship_position < -8 and state == '3':
@@ -369,21 +365,18 @@ def main():
     global background_sound
     glutInit(sys.argv)
     pygame.init()
-    glfw.init()
-    monitor = glfw.get_primary_monitor()
-    mode = glfw.get_video_mode(monitor)
 
     background_sound.play(-1)
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
-    glutInitWindowSize(mode.size.width, mode.size.height)
-    glutInitWindowPosition(0, 0)
+    glutInitWindowSize(1500, 900)
+    glutInitWindowPosition(200, 0)
     glutCreateWindow(b"Race The Sun !")
     glutDisplayFunc(switch)
     glutTimerFunc(MILLISECONDS, anim_timer, 1)
     init_textures()
     glutKeyboardFunc(keyboard_callback)
     glutPassiveMotionFunc(mouse_callback)
-    init_my_scene(mode.size.width, mode.size.height)
+    init_my_scene(1500, 900)
     glutMainLoop()
 
 
