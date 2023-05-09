@@ -46,8 +46,9 @@ heart = Heart(texture_name=TEXTURE_NAMES['heart'])
 background_sound = pygame.mixer.Sound("assets/sound/gameStart.mp3")
 texture = Texture()
 
+
 def restart():
-    global  camera_coordinates,spaceship_position,flash,speed,num_of_heart,state,pause,generate,fuel_generate,fuel_level,background_sound
+    global camera_coordinates, spaceship_position, flash, speed, num_of_heart, state, pause, generate, fuel_generate, fuel_level, background_sound
     camera_coordinates = {
         'x-eye': 25,
         'y-eye': 25,
@@ -66,6 +67,7 @@ def restart():
     fuel_generate = 0
     fuel_level = 100
     background_sound = pygame.mixer.Sound("assets/sound/gamePlay.mp3.mp3")
+
 
 #########################################################################
 def getModel(path):
@@ -274,7 +276,6 @@ def game():
     global generate, fuel_generate, fuel_level, speed, state, camera_coordinates, num_of_heart, flash, score  # variables
 
     camera_setup()
-
 
     if state != 'intro':
         if generate % 120 == 0:
