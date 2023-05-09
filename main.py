@@ -151,7 +151,7 @@ def draw_screen():
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES['background'])
     background_draw()
     if state == "gameOver":
-        draw_text(f"YOUR SCORE: {score}", -.3, .5, 6)
+        draw_text(f"YOUR SCORE: {score}", -.4, .4, 6, 5)
     projection_ortho()
     if state == "3" or state == "5":
         for i in range(num_of_heart):
@@ -236,10 +236,10 @@ def draw_vehicle():
 
 
 #########################################################################
-def draw_text(string, x=0.0, y=0.0, size=5.0):
+def draw_text(string, x=0.0, y=0.0, size=5.0, size_line=2):
     glPushMatrix()
     projection_ortho()
-    glLineWidth(2)
+    glLineWidth(size_line)
     glColor(1, 1, 1)
     glTranslate(x, y, 0)
     glScale(size / 10000, size / 10000, 1)
