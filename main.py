@@ -14,11 +14,11 @@ num_of_heart = 3
 state = "start"
 pause = False
 camera_coordinates = {
-    'x-eye': 0,
+    'x-eye': -25,
     'y-eye': 25,
-    'z-eye': -25,
+    'z-eye': 0,
     'x_center': 0,
-    'y_center': 11,
+    'y_center': 0,
     'z_center': 0
 }
 
@@ -233,6 +233,7 @@ def draw_vehicle():
     glPopMatrix()
     glDisable(GL_LIGHTING)
     glDisable(GL_LIGHT0)
+    draw_fire()
 
 
 #########################################################################
@@ -264,17 +265,69 @@ def switch():
     if pause:
         draw_text("press R to continue ", -.3, 0, 6)
         glutSwapBuffers()
-    if (state == "3" or state == "5") and pause == False:
+    if (state == 'intro' or state == "3" or state == "5") and pause == False:
         game()
     if not pause:
         glutSwapBuffers()
 
 
 #########################################################################
+# 'x-eye': 0,
+# 'y-eye': 25,
+# 'z-eye': -25,
+# 'x_center': 0,
+# 'y_center': 11,
+# 'z_center': 0
+
+def draw_fire():
+    global spaceship_position
+    ################################
+    glPushMatrix()
+    glColor(0.0784, 0.4235, 0.580)
+    glTranslate(spaceship_position, 0, abs(spaceship_position / 6))
+    glRotate(5 * spaceship_position, 0, 0, 1)
+    glTranslate(.5, 0, -6.5)
+    glScale(.3, .3, 3)
+    glutSolidSphere(1, 30, 30)
+    glPopMatrix()
+    ################################
+    glPushMatrix()
+    glColor(0.098, 0.6549, 0.8078)
+    glTranslate(spaceship_position, 0, abs(spaceship_position / 6))
+    glRotate(5 * spaceship_position, 0, 0, 1)
+    glTranslate(.5, .3, -6)
+    glScale(.3, .3, 3)
+    glutSolidSphere(.5, 30, 30)
+    glPopMatrix()
+    ################################
+    glPushMatrix()
+    glColor(0.0784, 0.4235, 0.580)
+    glTranslate(spaceship_position, 0, abs(spaceship_position / 6))
+    glRotate(5 * spaceship_position, 0, 0, 1)
+    glTranslate(-.5, 0, -6.5)
+    glScale(.3, .3, 3)
+    glutSolidSphere(1, 30, 30)
+    glPopMatrix()
+    ################################
+    glPushMatrix()
+    glColor(0.098, 0.6549, 0.8078)
+    glTranslate(spaceship_position, 0, abs(spaceship_position / 6))
+    glRotate(5 * spaceship_position, 0, 0, 1)
+    glTranslate(-.5, .3, -6)
+    glScale(.3, .3, 3)
+    glutSolidSphere(.5, 30, 30)
+    glPopMatrix()
 def camera_setup():
-    global camera_coordinates
+    global camera_coordinates,state
     if state == 'intro':
-        pass
+        if camera_coordinates['x-eye'] <= 0:
+            camera_coordinates['x-eye'] += 0.5
+            camera_coordinates['z-eye'] -= 0.5
+            camera_coordinates['y_center'] += 11 / 50
+        print (camera_coordinates)
+        if camera_coordinates['x-eye'] == 0:
+            state='3'
+            print (state)
     if state == "5":
         if camera_coordinates['y-eye'] < 50:
             camera_coordinates['y-eye'] += 0.5
@@ -295,6 +348,7 @@ def game():
     score = (generate // 100) * 100
     draw_text(f"SCORE: {score}", -.9, .7)
     draw_text("press P to pause ", -.9, .6, 4)
+
 
     if generate % 120 == 0:
         speed = obstacles.generate_obstacle(num_of_rail=int(state), speed=speed)
@@ -321,25 +375,21 @@ def game():
 
     if speed < 3:
         STEP = 3
-    else:
-        STEP = 4
-    if generate >= 4000 and state == "3":
-        generate = 0
-        state = "5"
-    generate += STEP
-    fuel_generate += STEP
-    fuel_level -= 0.2
 
+    else:
+        draw_vehicle()
 
 #########################################################################
 def keyboard_callback(key, x, y):
     global state, pause, background_sound
     if key == b's' and state == "start":
+
         print(state)
         state = "3"
         background_sound.stop()
         background_sound = pygame.mixer.Sound("assets/sound/Your Story Interactive - Love From Outer Space - Figting Game.mp3")
         background_sound.play(-1)
+
     if key == b'p':
         print("pause")
         pause = True
@@ -350,6 +400,7 @@ def keyboard_callback(key, x, y):
 
 def mouse_callback(x, y):
     global spaceship_position, state
+
     spaceship_position = (-x + 750) / 45
     if spaceship_position > 8 and state == '3':
         spaceship_position = 8
@@ -360,6 +411,8 @@ def mouse_callback(x, y):
         spaceship_position = 16
     elif spaceship_position < -16 and state == '5':
         spaceship_position = -16
+
+ 
 
 
 #########################################################################
