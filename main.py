@@ -42,7 +42,7 @@ IMAGE_NAME = {
     4: 'fuel.png',
     5: 'gameOver.jpg'
 }
-MILLISECONDS = 15
+MILLISECONDS = 5
 factory = {}
 
 obstacles = Obstacle(texture_name=TEXTURE_NAMES['obstacle'])
