@@ -49,7 +49,7 @@ obstacles = Obstacle(texture_name=TEXTURE_NAMES['obstacle'])
 fuel = Fuel(texture_name=TEXTURE_NAMES['fuel'])
 heart = Heart(texture_name=TEXTURE_NAMES['heart'])
 
-background_sound = pygame.mixer.Sound("assets/sound/gameplay.mp3")
+background_sound = pygame.mixer.Sound("assets/sound/the-k9-background-music-By-tuna.voicemod.net.mp3")
 #########################################################################
 def getModel(path):
     if path not in factory:
@@ -333,10 +333,13 @@ def game():
 
 #########################################################################
 def keyboard_callback(key, x, y):
-    global state, pause
+    global state, pause, background_sound
     if key == b's' and state == "start":
         print(state)
         state = "3"
+        background_sound.stop()
+        background_sound = pygame.mixer.Sound("assets/sound/Your Story Interactive - Love From Outer Space - Figting Game.mp3")
+        background_sound.play(-1)
     if key == b'p':
         print("pause")
         pause = True
