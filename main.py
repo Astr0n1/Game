@@ -36,13 +36,14 @@ fuel_generate = 0
 fuel_level = 100
 
 MILLISECONDS = 15
+
 factory = {}
 
 obstacles = Obstacle(texture_name=TEXTURE_NAMES['obstacle'])
 fuel = Fuel(texture_name=TEXTURE_NAMES['fuel'])
 heart = Heart(texture_name=TEXTURE_NAMES['heart'])
+background_sound = pygame.mixer.Sound("assets/sound/gameStart.mp3"
 texture = Texture()
-background_sound = pygame.mixer.Sound("assets/sound/the-k9-background-music-By-tuna.voicemod.net.mp3")
 
 
 #########################################################################
@@ -102,6 +103,7 @@ def draw_screen():
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES['Start'])
     elif state == "gameOver":
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES['gameOver'])
+        background_sound.stop()
     else:
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES['background'])
     background_draw()
@@ -213,7 +215,6 @@ def switch():
 
     if not num_of_heart:
         state = "gameOver"
-        background_sound.stop()
     if pause:
         draw_text("press R to continue ", -.3, 0, 6)
         glutSwapBuffers()
@@ -299,7 +300,8 @@ def keyboard_callback(key, x, y):
         state = 'intro'
         background_sound.stop()
         background_sound = pygame.mixer.Sound(
-            "assets/sound/figtingGame.mp3")
+            "assets/sound/gamePlay.mp3")
+
         background_sound.play(-1)
 
     if key == b'p':
@@ -311,8 +313,8 @@ def keyboard_callback(key, x, y):
 
 
 def mouse_callback(x, y):
-    global spaceship_position, state
     if state == '3' or state == '5':
+
         spaceship_position = (-x + 750) / 45
         if spaceship_position > 8 and state == '3':
             spaceship_position = 8
