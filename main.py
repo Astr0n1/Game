@@ -199,13 +199,29 @@ def lighting():
 #########################################################################
 def draw_vehicle():
     global spaceship_position
-    # Nx = (0) * cos(spaceship_position * pi / 180) + (0) - sin(spaceship_position * pi / 180)
-    # Ny = (0) * sin(spaceship_position * pi / 180) + (0) * cos(spaceship_position * pi / 180)  # Normal vector
-    # Nz = 1
-    # glNormal(Nx, Ny, Nz)
+    # fire tail outer oval
+    glPushMatrix() 
+    glColor3d(0,0.3,0.8)
+    glTranslate(spaceship_position-0.5, -0.1, abs(spaceship_position / 6)-5.5)
+    glRotate(5 * spaceship_position, 0, 0, 1)
+    glScale(0.5, 0.5, 2)
+    glutSolidSphere(0.8,30,30)
+    glTranslate(2,0,0)
+    glutSolidSphere(0.8,30,30)
+    glPopMatrix()
+    # fire tail inner oval
+    glPushMatrix() 
+    glColor3d(0.5,0.75,0.85)
+    glTranslate(spaceship_position-0.5, 0.1, abs(spaceship_position / 6)-5.5)
+    glRotate(5 * spaceship_position, 0, 0, 1)
+    glScale(0.2, 0.5, 1.7)
+    glutSolidSphere(0.8,30,30)
+    glTranslate(5,0,0)
+    glutSolidSphere(0.8,30,30)
+    glPopMatrix()
+    #spaceship body
     glEnable(GL_LIGHTING)
     glEnable(GL_LIGHT0)
-    glColor3d(0, 0, 0)
     glPushMatrix()
     glTranslate(spaceship_position, 0, abs(spaceship_position / 6))
     glRotate(5 * spaceship_position, 0, 0, 1)
