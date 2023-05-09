@@ -60,6 +60,8 @@ class Fuel:
     def fuel_level_bar(self, fuel_level=0.0, state=''):
         if fuel_level <= 0:
             state = 'gameOver'
+            gameOver_sound = pygame.mixer.Sound("assets/sound/gameOver.mp3")
+            gameOver_sound.play()
             return state
         else:
             glColor3d(1 - fuel_level / 100, fuel_level / 100, 0.0)
