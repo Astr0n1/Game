@@ -6,26 +6,16 @@ from component.fuel import Fuel
 from component.heart import Heart
 from component.objloader import *
 from component.obstacle import Obstacle
+from component.texture import Texture
 
-spaceship_position = 0
-flash = 0
-speed = 3
-num_of_heart = 3
-state = "start"
-pause = False
 camera_coordinates = {
-    'x-eye': -25,
+    'x-eye': 25,
     'y-eye': 25,
     'z-eye': 0,
     'x_center': 0,
     'y_center': 0,
     'z_center': 0
 }
-
-generate = 0
-fuel_generate = 0
-fuel_level = 100
-textureList = [0, 1, 2, 3, 4, 5]
 TEXTURE_NAMES = {
     'Start': 0,
     'background': 1,
@@ -34,21 +24,24 @@ TEXTURE_NAMES = {
     'fuel': 4,
     'gameOver': 5
 }
-IMAGE_NAME = {
-    0: 'start.jpg',
-    1: 'background.jpg',
-    2: 'obstacle.jpeg',
-    3: 'heart.png',
-    4: 'fuel.png',
-    5: 'gameOver.jpg'
-}
+spaceship_position = 0
+flash = 0
+speed = 3
+num_of_heart = 3
+state = "start"
+pause = False
+
+generate = 0
+fuel_generate = 0
+fuel_level = 100
+
 MILLISECONDS = 15
 factory = {}
 
 obstacles = Obstacle(texture_name=TEXTURE_NAMES['obstacle'])
 fuel = Fuel(texture_name=TEXTURE_NAMES['fuel'])
 heart = Heart(texture_name=TEXTURE_NAMES['heart'])
-
+texture = Texture()
 background_sound = pygame.mixer.Sound("assets/sound/the-k9-background-music-By-tuna.voicemod.net.mp3")
 
 
@@ -71,46 +64,6 @@ def projection_ortho(z_near=-200):
     glLoadIdentity()
 
 
-#########################################################################
-def init_textures():
-    load_texture()
-    glEnable(GL_BLEND)
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-
-
-#########################################################################
-def load_texture():
-    glEnable(GL_TEXTURE_2D)
-    images = [pygame.image.load(f"assets/images/{IMAGE_NAME[i]}") for i in range(len(IMAGE_NAME))]
-    textures = [pygame.image.tostring(image, "RGBA", True) for image in images]
-    glGenTextures(len(images), textureList)
-    for i in range(len(images)):
-        texture_setup(textures[i],
-                      i,
-                      images[i].get_width(),
-                      images[i].get_height())
-
-
-#########################################################################
-def texture_setup(texture_image_binary, texture_name, width, height):
-    glBindTexture(GL_TEXTURE_2D, texture_name)
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-
-    glTexImage2D(GL_TEXTURE_2D,
-                 0,
-                 GL_RGBA,
-                 width, height,
-                 0,
-                 GL_RGBA,
-                 GL_UNSIGNED_BYTE,
-                 texture_image_binary)
-    glBindTexture(GL_TEXTURE_2D, -1)
-
-
-#########################################################################
 def init_my_scene(width, height):
     lighting()
     glMatrixMode(GL_PROJECTION)
@@ -170,8 +123,6 @@ def draw_screen():
     init_my_scene(1000, 900)
     glPopMatrix()
 
-
-#########################################################################
 
 #########################################################################
 
@@ -235,7 +186,6 @@ def draw_vehicle():
     glPopMatrix()
     glDisable(GL_LIGHTING)
     glDisable(GL_LIGHT0)
-    draw_fire()
 
 
 #########################################################################
@@ -274,64 +224,16 @@ def switch():
 
 
 #########################################################################
-# 'x-eye': 0,
-# 'y-eye': 25,
-# 'z-eye': -25,
-# 'x_center': 0,
-# 'y_center': 11,
-# 'z_center': 0
-
-def draw_fire():
-    global spaceship_position
-    ################################
-    glPushMatrix()
-    glColor(0.0784, 0.4235, 0.580)
-    glTranslate(spaceship_position, 0, abs(spaceship_position / 6))
-    glRotate(5 * spaceship_position, 0, 0, 1)
-    glTranslate(.5, 0, -6.5)
-    glScale(.3, .3, 3)
-    glutSolidSphere(1, 30, 30)
-    glPopMatrix()
-    ################################
-    glPushMatrix()
-    glColor(0.098, 0.6549, 0.8078)
-    glTranslate(spaceship_position, 0, abs(spaceship_position / 6))
-    glRotate(5 * spaceship_position, 0, 0, 1)
-    glTranslate(.5, .3, -6)
-    glScale(.3, .3, 3)
-    glutSolidSphere(.5, 30, 30)
-    glPopMatrix()
-    ################################
-    glPushMatrix()
-    glColor(0.0784, 0.4235, 0.580)
-    glTranslate(spaceship_position, 0, abs(spaceship_position / 6))
-    glRotate(5 * spaceship_position, 0, 0, 1)
-    glTranslate(-.5, 0, -6.5)
-    glScale(.3, .3, 3)
-    glutSolidSphere(1, 30, 30)
-    glPopMatrix()
-    ################################
-    glPushMatrix()
-    glColor(0.098, 0.6549, 0.8078)
-    glTranslate(spaceship_position, 0, abs(spaceship_position / 6))
-    glRotate(5 * spaceship_position, 0, 0, 1)
-    glTranslate(-.5, .3, -6)
-    glScale(.3, .3, 3)
-    glutSolidSphere(.5, 30, 30)
-    glPopMatrix()
-
-
 def camera_setup():
     global camera_coordinates, state
     if state == 'intro':
-        if camera_coordinates['x-eye'] <= 0:
-            camera_coordinates['x-eye'] += 0.1
+        if camera_coordinates['x-eye'] >= 0:
+            camera_coordinates['x-eye'] -= 0.1
             camera_coordinates['z-eye'] -= 0.1
             camera_coordinates['y_center'] += 11 / 250
         print(camera_coordinates)
-        if camera_coordinates['x-eye'] >= 0:
+        if camera_coordinates['x-eye'] <= 0:
             state = '3'
-            print(state)
     if state == "5":
         if camera_coordinates['y-eye'] < 50:
             camera_coordinates['y-eye'] += 0.5
@@ -367,9 +269,10 @@ def game():
                                                  speed=speed, )
 
         if 50 >= fuel_level >= 20 and not len(fuel.fuel_x):
-            fuel.generate_new_fuel(num_of_rail = int(state), obstacles_x=obstacles.obstacle_x[-1])
+            fuel.generate_new_fuel(num_of_rail=int(state), obstacles_x=obstacles.obstacle_x[-1])
         fuel.draw_old_fuel(speed=speed)
-        fuel_level = fuel.collision_detection(space_ship_position=spaceship_position, fuel_level=fuel_level, speed=speed)
+        fuel_level = fuel.collision_detection(space_ship_position=spaceship_position, fuel_level=fuel_level,
+                                              speed=speed)
 
         if flash:
             flash -= 1
@@ -381,7 +284,6 @@ def game():
         else:
             STEP = 4
         if generate >= 4000 and state == "3":
-            generate = 0
             state = "5"
         generate += STEP
         fuel_generate += STEP
@@ -394,12 +296,10 @@ def game():
 def keyboard_callback(key, x, y):
     global state, pause, background_sound
     if key == b's' and state == "start":
-        print(state)
         state = 'intro'
-        print(state)
         background_sound.stop()
         background_sound = pygame.mixer.Sound(
-            "assets/sound/Your Story Interactive - Love From Outer Space - Figting Game.mp3")
+            "assets/sound/figtingGame.mp3")
         background_sound.play(-1)
 
     if key == b'p':
@@ -412,7 +312,7 @@ def keyboard_callback(key, x, y):
 
 def mouse_callback(x, y):
     global spaceship_position, state
-    if state != 'intro':
+    if state == '3' or state == '5':
         spaceship_position = (-x + 750) / 45
         if spaceship_position > 8 and state == '3':
             spaceship_position = 8
@@ -443,7 +343,7 @@ def main():
     glutCreateWindow(b"Race The Sun !")
     glutDisplayFunc(switch)
     glutTimerFunc(MILLISECONDS, anim_timer, 1)
-    init_textures()
+    texture.init_textures()
     glutKeyboardFunc(keyboard_callback)
     glutPassiveMotionFunc(mouse_callback)
     init_my_scene(1500, 900)
