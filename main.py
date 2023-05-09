@@ -214,6 +214,7 @@ def draw_vehicle():
     glPopMatrix()
     glDisable(GL_LIGHTING)
     glDisable(GL_LIGHT0)
+    draw_fire()
 
 
 #########################################################################
@@ -261,6 +262,45 @@ def switch():
 # 'x_center': 0,
 # 'y_center': 11,
 # 'z_center': 0
+
+def draw_fire():
+    global spaceship_position
+    ################################
+    glPushMatrix()
+    glColor(0.0784, 0.4235, 0.580)
+    glTranslate(spaceship_position, 0, abs(spaceship_position / 6))
+    glRotate(5 * spaceship_position, 0, 0, 1)
+    glTranslate(.5, 0, -6.5)
+    glScale(.3, .3, 3)
+    glutSolidSphere(1, 30, 30)
+    glPopMatrix()
+    ################################
+    glPushMatrix()
+    glColor(0.098, 0.6549, 0.8078)
+    glTranslate(spaceship_position, 0, abs(spaceship_position / 6))
+    glRotate(5 * spaceship_position, 0, 0, 1)
+    glTranslate(.5, .3, -6)
+    glScale(.3, .3, 3)
+    glutSolidSphere(.5, 30, 30)
+    glPopMatrix()
+    ################################
+    glPushMatrix()
+    glColor(0.0784, 0.4235, 0.580)
+    glTranslate(spaceship_position, 0, abs(spaceship_position / 6))
+    glRotate(5 * spaceship_position, 0, 0, 1)
+    glTranslate(-.5, 0, -6.5)
+    glScale(.3, .3, 3)
+    glutSolidSphere(1, 30, 30)
+    glPopMatrix()
+    ################################
+    glPushMatrix()
+    glColor(0.098, 0.6549, 0.8078)
+    glTranslate(spaceship_position, 0, abs(spaceship_position / 6))
+    glRotate(5 * spaceship_position, 0, 0, 1)
+    glTranslate(-.5, .3, -6)
+    glScale(.3, .3, 3)
+    glutSolidSphere(.5, 30, 30)
+    glPopMatrix()
 def camera_setup():
     global camera_coordinates,state
     if state == 'intro':
@@ -345,16 +385,16 @@ def keyboard_callback(key, x, y):
 
 def mouse_callback(x, y):
     global spaceship_position, state
-    spaceship_position = (-x + 500) / 30
-    if spaceship_position > 8 and state == '3':
-        spaceship_position = 8
-    elif spaceship_position < -8 and state == '3':
-        spaceship_position = -8
-
-    if spaceship_position > 16 and state == '5':
-        spaceship_position = 16
-    elif spaceship_position < -16 and state == '5':
-        spaceship_position = -16
+    if state != 'intro':
+        spaceship_position = (-x + 500) / 30
+        if spaceship_position > 8 and state == '3':
+            spaceship_position = 8
+        elif spaceship_position < -8 and state == '3':
+            spaceship_position = -8
+        if spaceship_position > 16 and state == '5':
+            spaceship_position = 16
+        elif spaceship_position < -16 and state == '5':
+            spaceship_position = -16
 
 
 #########################################################################
