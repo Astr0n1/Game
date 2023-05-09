@@ -235,7 +235,7 @@ def draw_vehicle():
     glPopMatrix()
     glDisable(GL_LIGHTING)
     glDisable(GL_LIGHT0)
-    draw_fire()
+    # draw_fire()
 
 
 #########################################################################
@@ -412,7 +412,7 @@ def keyboard_callback(key, x, y):
 
 def mouse_callback(x, y):
     global spaceship_position, state
-    if state != 'intro':
+    if state == "3" or state == "5":
         spaceship_position = (-x + 750) / 45
         if spaceship_position > 8 and state == '3':
             spaceship_position = 8
