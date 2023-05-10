@@ -8,7 +8,7 @@ from component.fuel import Fuel
 from component.heart import Heart
 from component.objloader import *
 from component.obstacle import Obstacle, getModel
-from component.texture import Texture, pass_gameover_index
+from component.texture import Texture,pass_index
 
 
 camera_coordinates = {
@@ -20,11 +20,9 @@ camera_coordinates = {
     'z_center': 0
 }
 TEXTURE_NAMES = {
-    'Start': 0,
-    'background': 1,
-    'heart': 2,
-    'fuel': 3,
-    'gameOver': 4
+    'heart': 0,
+    'fuel': 1,
+    'background': 21
 }
 spaceship_position = 0
 flash = 0
@@ -37,7 +35,10 @@ generate = 0
 fuel_generate = 0
 fuel_level = 100
 gameover_flash_speed = 0
-MILLISECONDS = 5
+gameplay_flash_speed = 0
+gamestart_flash_speed = 0
+
+MILLISECONDS = 7
 
 factory = {}
 
@@ -82,6 +83,7 @@ def projection_ortho(z_near=-200):
 
 def init_my_scene(width, height):
     lighting()
+    glClearColor(0, 0 , 0, 0)
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     gluPerspective(45, float(width) / float(height), 20, 300.0)
@@ -109,24 +111,29 @@ def background_draw():
 #########################################################################
 
 def draw_screen():
-    global state, score, gameover_flash_speed
+    global state, score, gameover_flash_speed, gamestart_flash_speed,gameplay_flash_speed
     glPushMatrix()
     glColor(1, 1, 1)
     projection_ortho(-220)
 
     if state == "start":
-        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES['Start'])
+        gamestart_flash_speed += 1
+        gamestart_index = gamestart_flash_speed // 12
+        pass_index(gamestart_index, "gamestart")
+        glBindTexture(GL_TEXTURE_2D, 2 + gamestart_index % 19 )
     elif state == "gameOver":
         gameover_flash_speed += 1
-        gameover_index = gameover_flash_speed // 5
-        pass_gameover_index(gameover_index)
-        glBindTexture(GL_TEXTURE_2D, 4 + gameover_index % 4)
+        gameover_index = gameover_flash_speed // 19
+        pass_index(gameover_index, "gameover")
+        glBindTexture(GL_TEXTURE_2D, 2 + 20 + 1 + gameover_index % 39) 
         background_sound.stop()
     else:
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES['background'])
     background_draw()
     if state == "gameOver":
-        draw_text(f"YOUR SCORE: {score}", -.4, .4, 6, 5)
+        
+        final_score = score/10
+        draw_text(f"YOUR SCORE: {int(final_score)}", -.4, .5, 6, 5)
     projection_ortho()
     if state == "3" or state == "5":
         for i in range(num_of_heart):
@@ -139,7 +146,8 @@ def draw_screen():
         glBindTexture(GL_TEXTURE_2D, -1)
         state = fuel.fuel_level_bar(fuel_level, state)
         score = (generate // 100) * 100
-        draw_text(f"SCORE: {score}", -.9, .7)
+        final_score = score /10
+        draw_text(f"SCORE: {int(final_score)}", -.9, .7)
         draw_text("press P to pause ", -.9, .6, 4)
 
     init_my_scene(1500, 900)
