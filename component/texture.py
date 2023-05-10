@@ -5,7 +5,6 @@ gameover_index = 0
 image_name = [
     'start.jpg',
     'background.jpg',
-    'obstacle.jpeg',
     'heart.png',
     'fuel.png',
     'gameover/' + str(gameover_index % 4) + '.jpg'
@@ -21,7 +20,7 @@ class Texture:
 
     def load_texture(self):
         glEnable(GL_TEXTURE_2D)
-        image_list = [pygame.image.load(f"assets/images/{image_name[i]}") for i in range(5)]
+        image_list = [pygame.image.load(f"assets/images/{image_name[i]}") for i in range(4)]
         gameOver_list = [pygame.image.load(f"assets/images/gameover/{i}.jpg") for i in range(4)]
         image_list.extend(gameOver_list)
         textures = [pygame.image.tostring(image, "RGBA", True) for image in image_list]
