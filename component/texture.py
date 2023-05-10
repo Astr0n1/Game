@@ -3,12 +3,12 @@ import pygame
 from OpenGL.GL import *
 
 image_name = [
-    'start.jpg',
-    'background.jpg',
+    'start.png',
+    'background.png',
     'obstacle.jpeg',
     'heart.png',
     'fuel.png',
-    'gameOver.jpg'
+    'gameOver.png'
 ]
 textureList = [0, 1, 2, 3, 4, 5]
 

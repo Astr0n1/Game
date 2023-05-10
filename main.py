@@ -39,7 +39,7 @@ fuel_level = 100
 MILLISECONDS = 15
 
 factory = {}
-
+text = 'press P to pause'
 obstacles = Obstacle(texture_name=TEXTURE_NAMES['obstacle'])
 fuel = Fuel(texture_name=TEXTURE_NAMES['fuel'])
 heart = Heart(texture_name=TEXTURE_NAMES['heart'])
@@ -66,7 +66,7 @@ def restart():
     generate = 0
     fuel_generate = 0
     fuel_level = 100
-    background_sound = pygame.mixer.Sound("assets/sound/gamePlay.mp3.mp3")
+    background_sound = pygame.mixer.Sound("assets/sound/gamePlay.mp3")
 
 
 #########################################################################
@@ -145,9 +145,9 @@ def draw_screen():
         state = fuel.fuel_level_bar(fuel_level, state)
         score = (generate // 100) * 100
         draw_text(f"SCORE: {score}", -.9, .7)
-        draw_text("press P to pause ", -.9, .6, 4)
+        # draw_text( text, -.9, .6, 4)
 
-    init_my_scene(1500, 900)
+    init_my_scene(1365, 720)
     glPopMatrix()
 
 
@@ -226,7 +226,7 @@ def draw_text(string, x=0.0, y=0.0, size=5.0, size_line=2):
     string = string.encode()
     for c in string:
         glutStrokeCharacter(GLUT_STROKE_ROMAN, c)
-    init_my_scene(1000, 900)
+    init_my_scene(1365, 720)
     glPopMatrix()
 
 
@@ -240,9 +240,9 @@ def switch():
 
     if not num_of_heart:
         state = "gameOver"
-    if pause:
-        draw_text("press R to continue ", -.3, 0, 6)
-        glutSwapBuffers()
+    # if pause:
+    #     draw_text("press R to continue ", -.3, 0, 6)
+    #     glutSwapBuffers()
     if (state == 'intro' or state == "3" or state == "5") and pause == False:
         game()
     if not pause:
@@ -255,6 +255,7 @@ def camera_setup():
     if state == 'intro':
         if camera_coordinates['x-eye'] >= 0:
             camera_coordinates['x-eye'] -= 0.1
+
             camera_coordinates['z-eye'] -= 0.1
             camera_coordinates['y_center'] += 11 / 250
         print(camera_coordinates)
@@ -278,6 +279,9 @@ def game():
     camera_setup()
 
     if state != 'intro':
+        draw_text(text, -.9, .6, 4)
+        if pause:
+            speed = 0,
         if generate % 120 == 0:
             speed = obstacles.generate_obstacle(num_of_rail=int(state), speed=speed)
         obstacles.draw_obstacles(speed=speed)
@@ -301,7 +305,6 @@ def game():
             flash -= 1
         if flash % 15 == 0:
             draw_vehicle()
-
         if speed < 3:
             STEP = 3
         else:
@@ -317,18 +320,22 @@ def game():
 
 #########################################################################
 def keyboard_callback(key, x, y):
-    global state, pause, background_sound, num_of_heart, fuel_level
+    global state, pause, background_sound, text
     if key == b'\r' and state == "start":
         state = 'intro'
         background_sound.stop()
         background_sound = pygame.mixer.Sound(
             "assets/sound/gamePlay.mp3")
         background_sound.play(-1)
-    if key == b'p':
-        print("pause")
+    if key == b'p' and state != 'intro':
+        text = 'press R to continue '
+        print(text)
+        # draw_text(text, -.9, .6, 4)
         pause = True
     if key == b'r':
-        print("resume")
+        text = 'press P to pause '
+        print(text)
+        # draw_text(text, -.9, .6, 4)
         pause = False
     if key == b'\r' and state == 'gameOver':
         restart()
@@ -339,7 +346,7 @@ def mouse_callback(x, y):
     global spaceship_position
     print(x)
     if state == '3' or state == '5':
-        spaceship_position = (-x + 750) / 45
+        spaceship_position = (-x + 650) / 45
         if spaceship_position > 8 and state == '3':
             spaceship_position = 8
         elif spaceship_position < -8 and state == '3':
@@ -364,7 +371,7 @@ def main():
     glfw.init()
     background_sound.play(-1)
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
-    glutInitWindowSize(1500, 900)
+    glutInitWindowSize(1365, 720)
     glutInitWindowPosition(0, 0)
     glutCreateWindow(b"Race The Sun !")
     glutDisplayFunc(switch)
@@ -372,7 +379,7 @@ def main():
     texture.init_textures()
     glutKeyboardFunc(keyboard_callback)
     glutPassiveMotionFunc(mouse_callback)
-    init_my_scene(1500, 900)
+    init_my_scene(1365, 720)
     glutMainLoop()
 
 

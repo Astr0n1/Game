@@ -33,7 +33,7 @@ class Heart:
             glColor3d(1, 1, 0)
             glTranslate(self.heart_x[i], 0, self.heart_z[i])
             self.heart_z[i] -= speed
-            glScale(3, 2.5, 0)
+            glScale(4, 3.5, 0)
             self.heart_draw()
             glBindTexture(GL_TEXTURE_2D, -1)
             glPopMatrix()
