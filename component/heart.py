@@ -30,7 +30,7 @@ class Heart:
         glPushMatrix()
         for i in range(len(self.heart_x)):
             glPushMatrix()
-            glColor3d(1, 1, 0)
+            glColor3d(1, 1, 1)
             glTranslate(self.heart_x[i], 0, self.heart_z[i])
             self.heart_z[i] -= speed
             glScale(3, 2.5, 0)

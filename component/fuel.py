@@ -28,7 +28,7 @@ class Fuel:
         glPushMatrix()
         for i in range(len(self.fuel_x)):
             glPushMatrix()
-            glColor3d(1, 1, 0)
+            glColor3d(1, 1, 1)
             glTranslate(self.fuel_x[i], 0, self.fuel_z[i])
             self.fuel_z[i] -= speed
             glScale(2.5, 3, 0)

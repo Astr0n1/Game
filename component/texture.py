@@ -1,17 +1,16 @@
 import pygame
 
 from OpenGL.GL import *
-
+gameover_index = 0
 image_name = [
     'start.jpg',
     'background.jpg',
     'obstacle.jpeg',
     'heart.png',
     'fuel.png',
-    'gameOver.jpg'
+    'gameover/' + str(gameover_index % 4) + '.jpg'
 ]
-textureList = [0, 1, 2, 3, 4, 5]
-
+textureList = [i for i in range(4 + 5)]
 
 class Texture:
 
@@ -22,7 +21,9 @@ class Texture:
 
     def load_texture(self):
         glEnable(GL_TEXTURE_2D)
-        image_list = [pygame.image.load(f"assets/images/{image_name[i]}") for i in range(6)]
+        image_list = [pygame.image.load(f"assets/images/{image_name[i]}") for i in range(5)]
+        gameOver_list = [pygame.image.load(f"assets/images/gameover/{i}.jpg") for i in range(4)]
+        image_list.extend(gameOver_list)
         textures = [pygame.image.tostring(image, "RGBA", True) for image in image_list]
         glGenTextures(len(image_list), textureList)
         for i in range(len(image_list)):
@@ -48,3 +49,7 @@ class Texture:
                      GL_UNSIGNED_BYTE,
                      texture_image_binary, )
         glBindTexture(GL_TEXTURE_2D, -1)
+
+def pass_gameover_index(index):
+    global gameover_index
+    gameover_index = index
