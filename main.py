@@ -2,12 +2,13 @@ import glfw
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from numpy import *
+import glfw
 
 from component.fuel import Fuel
 from component.heart import Heart
 from component.objloader import *
 from component.obstacle import Obstacle
-from component.texture import Texture
+from component.texture import Texture, path_gameover_index
 
 camera_coordinates = {
     'x-eye': 25,
@@ -35,8 +36,8 @@ pause = False
 generate = 0
 fuel_generate = 0
 fuel_level = 100
-
-MILLISECONDS = 15
+gameover_flash_speed = 0
+MILLISECONDS = 5
 
 factory = {}
 
@@ -117,7 +118,7 @@ def background_draw():
 #########################################################################
 
 def draw_screen():
-    global state, score
+    global state, score, gameover_flash_speed
     glPushMatrix()
     glColor(1, 1, 1)
     projection_ortho(-220)
@@ -125,7 +126,10 @@ def draw_screen():
     if state == "start":
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES['Start'])
     elif state == "gameOver":
-        glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES['gameOver'])
+        gameover_flash_speed += 1
+        gameover_index = gameover_flash_speed // 5
+        path_gameover_index(gameover_index)
+        glBindTexture(GL_TEXTURE_2D, 5 + gameover_index % 4)
         background_sound.stop()
     else:
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES['background'])
@@ -336,9 +340,8 @@ def keyboard_callback(key, x, y):
 
 
 def mouse_callback(x, y):
-    global spaceship_position
-    print(x)
-    if state == '3' or state == '5':
+    global spaceship_position, state
+    if state == "3" or state == "5":
         spaceship_position = (-x + 750) / 45
         if spaceship_position > 8 and state == '3':
             spaceship_position = 8
