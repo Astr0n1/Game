@@ -1,8 +1,10 @@
 from random import randrange
 
 import pygame
+from component.objloader import *
 from OpenGL.GL import *
 
+factory = {}
 
 class Obstacle:
     def __init__(self, texture_name=-1):
@@ -43,12 +45,14 @@ class Obstacle:
         glPushMatrix()
         for i in range(len(self.obstacle_x)):
             glPushMatrix()
-            glColor3d(1, 1, 0)
+            glColor3d(1, 1, 1)
             glTranslate(self.obstacle_x[i], 0, self.obstacle_z[i])
             glRotate(self.phase[i], 1, 0, 1)
             self.obstacle_z[i] -= speed
-            glScale(2.5, 2.5, 2.5)
-            self.create_obstacle()
+            glScale(.5, .5, .5)
+            getModel("models/obstacle.obj").render()
+            # glScale(2.5, 2.5, 2.5)
+            # self.create_obstacle()
             glBindTexture(GL_TEXTURE_2D, -1)
             self.phase[i] += 3
             glPopMatrix()
@@ -180,3 +184,10 @@ class Obstacle:
         else:
             gameOver_sound = pygame.mixer.Sound("assets/sound/gameOver.mp3")
             gameOver_sound.play()
+
+def getModel(path):
+    if path not in factory:
+        factory[path] = OBJ(path)
+        factory[path].generate()
+
+    return factory[path]

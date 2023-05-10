@@ -6,7 +6,7 @@ import glfw
 from component.fuel import Fuel
 from component.heart import Heart
 from component.objloader import *
-from component.obstacle import Obstacle
+from component.obstacle import Obstacle, getModel
 from component.texture import Texture, path_gameover_index
 
 camera_coordinates = {
@@ -45,15 +45,6 @@ fuel = Fuel(texture_name=TEXTURE_NAMES['fuel'])
 heart = Heart(texture_name=TEXTURE_NAMES['heart'])
 background_sound = pygame.mixer.Sound("assets/sound/gameStart.mp3")
 texture = Texture()
-
-
-#########################################################################
-def getModel(path):
-    if path not in factory:
-        factory[path] = OBJ(path)
-        factory[path].generate()
-
-    return factory[path]
 
 
 #########################################################################
