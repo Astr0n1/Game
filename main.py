@@ -22,10 +22,9 @@ camera_coordinates = {
 TEXTURE_NAMES = {
     'Start': 0,
     'background': 1,
-    'obstacle': 2,
-    'heart': 3,
-    'fuel': 4,
-    'gameOver': 5
+    'heart': 2,
+    'fuel': 3,
+    'gameOver': 4
 }
 spaceship_position = 0
 flash = 0
@@ -42,7 +41,7 @@ MILLISECONDS = 5
 
 factory = {}
 
-obstacles = Obstacle(texture_name=TEXTURE_NAMES['obstacle'])
+obstacles = Obstacle()
 fuel = Fuel(texture_name=TEXTURE_NAMES['fuel'])
 heart = Heart(texture_name=TEXTURE_NAMES['heart'])
 background_sound = pygame.mixer.Sound("assets/sound/gameStart.mp3")
@@ -121,7 +120,7 @@ def draw_screen():
         gameover_flash_speed += 1
         gameover_index = gameover_flash_speed // 5
         pass_gameover_index(gameover_index)
-        glBindTexture(GL_TEXTURE_2D, 5 + gameover_index % 4)
+        glBindTexture(GL_TEXTURE_2D, 4 + gameover_index % 4)
         background_sound.stop()
     else:
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES['background'])
