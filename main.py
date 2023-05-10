@@ -1,3 +1,4 @@
+import glfw
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from numpy import *
@@ -7,7 +8,8 @@ from component.fuel import Fuel
 from component.heart import Heart
 from component.objloader import *
 from component.obstacle import Obstacle, getModel
-from component.texture import Texture, path_gameover_index
+from component.texture import Texture, pass_gameover_index
+
 
 camera_coordinates = {
     'x-eye': 25,
@@ -45,6 +47,28 @@ fuel = Fuel(texture_name=TEXTURE_NAMES['fuel'])
 heart = Heart(texture_name=TEXTURE_NAMES['heart'])
 background_sound = pygame.mixer.Sound("assets/sound/gameStart.mp3")
 texture = Texture()
+
+
+def restart():
+    global camera_coordinates, spaceship_position, flash, speed, num_of_heart, state, pause, generate, fuel_generate, fuel_level, background_sound
+    camera_coordinates = {
+        'x-eye': 25,
+        'y-eye': 25,
+        'z-eye': 0,
+        'x_center': 0,
+        'y_center': 0,
+        'z_center': 0
+    }
+    spaceship_position = 0
+    flash = 0
+    speed = 3
+    num_of_heart = 3
+    state = "intro"
+    pause = False
+    generate = 0
+    fuel_generate = 0
+    fuel_level = 100
+    background_sound = pygame.mixer.Sound("assets/sound/gamePlay.mp3.mp3")
 
 
 #########################################################################
@@ -96,7 +120,7 @@ def draw_screen():
     elif state == "gameOver":
         gameover_flash_speed += 1
         gameover_index = gameover_flash_speed // 5
-        path_gameover_index(gameover_index)
+        pass_gameover_index(gameover_index)
         glBindTexture(GL_TEXTURE_2D, 5 + gameover_index % 4)
         background_sound.stop()
     else:
@@ -114,10 +138,12 @@ def draw_screen():
             heart.heart_draw()
             glPopMatrix()
         glBindTexture(GL_TEXTURE_2D, -1)
-
         state = fuel.fuel_level_bar(fuel_level, state)
+        score = (generate // 100) * 100
+        draw_text(f"SCORE: {score}", -.9, .7)
+        draw_text("press P to pause ", -.9, .6, 4)
 
-    init_my_scene(1000, 900)
+    init_my_scene(1500, 900)
     glPopMatrix()
 
 
@@ -227,7 +253,6 @@ def camera_setup():
             camera_coordinates['x-eye'] -= 0.1
             camera_coordinates['z-eye'] -= 0.1
             camera_coordinates['y_center'] += 11 / 250
-        print(camera_coordinates)
         if camera_coordinates['x-eye'] <= 0:
             state = '3'
     if state == "5":
@@ -247,9 +272,6 @@ def game():
 
     camera_setup()
 
-    score = (generate // 100) * 100
-    draw_text(f"SCORE: {score}", -.9, .7)
-    draw_text("press P to pause ", -.9, .6, 4)
     if state != 'intro':
         if generate % 120 == 0:
             speed = obstacles.generate_obstacle(num_of_rail=int(state), speed=speed)
@@ -290,21 +312,20 @@ def game():
 
 #########################################################################
 def keyboard_callback(key, x, y):
-    global state, pause, background_sound
-    if key == b's' and state == "start":
+    global state, pause, background_sound, num_of_heart, fuel_level
+    if key == b'\r' and state == "start":
         state = 'intro'
         background_sound.stop()
         background_sound = pygame.mixer.Sound(
             "assets/sound/gamePlay.mp3")
-
         background_sound.play(-1)
-
     if key == b'p':
-        print("pause")
         pause = True
     if key == b'r':
-        print("resume")
         pause = False
+    if key == b'\r' and state == 'gameOver':
+        restart()
+        background_sound.play(-1)
 
 
 def mouse_callback(x, y):
@@ -332,11 +353,11 @@ def main():
     global background_sound
     glutInit(sys.argv)
     pygame.init()
-
+    glfw.init()
     background_sound.play(-1)
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
     glutInitWindowSize(1500, 900)
-    glutInitWindowPosition(200, 0)
+    glutInitWindowPosition(0, 0)
     glutCreateWindow(b"Race The Sun !")
     glutDisplayFunc(switch)
     glutTimerFunc(MILLISECONDS, anim_timer, 1)
