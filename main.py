@@ -8,7 +8,7 @@ from component.fuel import Fuel
 from component.heart import Heart
 from component.objloader import *
 from component.obstacle import Obstacle
-from component.texture import Texture, path_gameover_index
+from component.texture import Texture, pass_gameover_index
 
 camera_coordinates = {
     'x-eye': 25,
@@ -128,7 +128,7 @@ def draw_screen():
     elif state == "gameOver":
         gameover_flash_speed += 1
         gameover_index = gameover_flash_speed // 5
-        path_gameover_index(gameover_index)
+        pass_gameover_index(gameover_index)
         glBindTexture(GL_TEXTURE_2D, 5 + gameover_index % 4)
         background_sound.stop()
     else:
@@ -261,7 +261,6 @@ def camera_setup():
             camera_coordinates['x-eye'] -= 0.1
             camera_coordinates['z-eye'] -= 0.1
             camera_coordinates['y_center'] += 11 / 250
-        print(camera_coordinates)
         if camera_coordinates['x-eye'] <= 0:
             state = '3'
     if state == "5":
@@ -329,10 +328,8 @@ def keyboard_callback(key, x, y):
             "assets/sound/gamePlay.mp3")
         background_sound.play(-1)
     if key == b'p':
-        print("pause")
         pause = True
     if key == b'r':
-        print("resume")
         pause = False
     if key == b'\r' and state == 'gameOver':
         restart()

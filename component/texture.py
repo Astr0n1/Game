@@ -49,6 +49,7 @@ class Texture:
                      GL_UNSIGNED_BYTE,
                      texture_image_binary, )
         glBindTexture(GL_TEXTURE_2D, -1)
-def path_gameover_index(index):
+
+def pass_gameover_index(index):
     global gameover_index
     gameover_index = index
