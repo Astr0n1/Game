@@ -2,7 +2,6 @@ import glfw
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from numpy import *
-import glfw
 
 from component.fuel import Fuel
 from component.heart import Heart
@@ -27,25 +26,25 @@ TEXTURE_NAMES = {
     'gameOver': 4
 }
 spaceship_position = 0
-flash = 0
-speed = 3
+flash = 0  # for collision with obstacles flash visual effect
+speed = 3  # speed of spaceship
 num_of_heart = 3
-state = "start"
+state = "start"  # choose => start / 3 / 5 / pause / gameOver
 pause = False
 
 generate = 0
 fuel_generate = 0
 fuel_level = 100
-gameover_flash_speed = 0
+gameover_flash_speed = 0  # for GIF background 
 MILLISECONDS = 5
 
-factory = {}
+factory = {} #to render the model once
 
 obstacles = Obstacle()
 fuel = Fuel(texture_name=TEXTURE_NAMES['fuel'])
 heart = Heart(texture_name=TEXTURE_NAMES['heart'])
-background_sound = pygame.mixer.Sound("assets/sound/gameStart.mp3")
 texture = Texture()
+background_sound = pygame.mixer.Sound("assets/sound/gameStart.mp3")
 
 
 def restart():
@@ -70,7 +69,7 @@ def restart():
 
 
 #########################################################################
-def projection_ortho(z_near=-200):
+def projection_ortho(z_near=-200):  # for background draw
     glLoadIdentity()
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
@@ -80,7 +79,7 @@ def projection_ortho(z_near=-200):
 
 
 def init_my_scene(width, height):
-    lighting()
+    lighting() # to light the intro
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     gluPerspective(45, float(width) / float(height), 20, 300.0)
@@ -117,11 +116,11 @@ def draw_screen():
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES['Start'])
     elif state == "gameOver":
         gameover_flash_speed += 1
-        gameover_index = gameover_flash_speed // 5
+        gameover_index = gameover_flash_speed // 5  # to reduce Frames Per Second
         pass_gameover_index(gameover_index)
-        glBindTexture(GL_TEXTURE_2D, 4 + gameover_index % 4)
+        glBindTexture(GL_TEXTURE_2D, 4 + gameover_index % 4) #first 4 for the other imgs second for no of gameover frames
         background_sound.stop()
-    else:
+    else: # state =="3" or "5"
         glBindTexture(GL_TEXTURE_2D, TEXTURE_NAMES['background'])
     background_draw()
     if state == "gameOver":
