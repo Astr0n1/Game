@@ -67,7 +67,6 @@ def restart():
     generate = 0
     fuel_generate = 0
     fuel_level = 100
-    background_sound = pygame.mixer.Sound("assets/sound/gamePlay.mp3.mp3")
 
 
 #########################################################################
@@ -211,7 +210,7 @@ def draw_vehicle():
 
 
 #########################################################################
-def draw_text(string, x=0.0, y=0.0, size=5.0, size_line=2):
+def draw_text(string, x=0.0, y=0.0, size=5.0, size_line=5):
     glPushMatrix()
     projection_ortho()
     glLineWidth(size_line)
@@ -324,6 +323,9 @@ def keyboard_callback(key, x, y):
         pause = False
     if key == b'\r' and state == 'gameOver':
         restart()
+        background_sound.stop()
+        background_sound = pygame.mixer.Sound(
+            "assets/sound/gamePlay.mp3")
         background_sound.play(-1)
 
 
