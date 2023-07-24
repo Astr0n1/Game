@@ -4,7 +4,7 @@
 <img align="center" src="https://github.com/Astr0n1/Game/assets/104142801/bd0b4ba3-b276-43f3-abc4-0bf0ec27dee9" alt="Race The Sun">
 <br/>
 
-<h3> 🤝🏻 contriputers : </h3>
+<h3> 🤝🏻 Contriputers : </h3>
 - أيمن حمدي شوقي حسين
 <br/>
 - أحمد عبدالله العباسي
